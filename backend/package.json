@@ -9,7 +9,9 @@
     "start": "npx prisma generate && npx prisma migrate deploy && node server.js",
     "build": "echo 'No build step required'",
     "prisma.seed": "node prisma/seed.js",
-    "postinstall": "echo 'Skipping Prisma generate during Render build'"
+    "postinstall": "echo 'Skipping Prisma generate during Render build'",
+    "rebuild": "rm -rf node_modules && npm cache clean --force && npm install"
+
   },
   "engines": {
     "node": "20.x"
