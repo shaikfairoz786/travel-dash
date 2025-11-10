@@ -7,8 +7,7 @@
     "start": "node server.js",
     "dev": "node server.js",
     "build": "echo 'No build step required'",
-    "prisma.seed": "node prisma/seed.js",
-    "postinstall": "npx prisma generate"
+    "prisma.seed": "node prisma/seed.js"
   },
   "keywords": [],
   "author": "",
