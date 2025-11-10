@@ -7,7 +7,7 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-primary-50">
       <AdminSidebar />
       <div className="flex-1 p-4">
         {children}

@@ -15,7 +15,8 @@ interface Booking {
 }
 
 const AdminBookingsPage: React.FC = () => {
-  const { accessToken } = useAuth();
+  const { session } = useAuth();
+  const accessToken = session?.access_token;
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,8 +40,8 @@ const AdminBookingsPage: React.FC = () => {
       }
       const data = await response.json();
       setBookings(data.bookings);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -73,8 +74,8 @@ const AdminBookingsPage: React.FC = () => {
 
       alert(`Booking ${bookingId} status updated to ${newStatus}`);
       fetchBookings(); // Refresh the list
-    } catch (err: any) {
-      alert(`Failed to update booking status: ${err.message}`);
+    } catch (err: unknown) {
+      alert(`Failed to update booking status: ${err instanceof Error ? err.message : 'An error occurred'}`);
     }
   };
 

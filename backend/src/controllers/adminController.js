@@ -4,7 +4,6 @@ const { paginationSchema } = require('../utils/validation');
 // Get all customers with booking counts (admin only)
 const getAllCustomers = async (req, res, next) => {
   try {
-    // Validate pagination
     const { error, value } = paginationSchema.validate(req.query);
     if (error) {
       return res.status(400).json({ error: 'Invalid pagination parameters' });
@@ -50,6 +49,7 @@ const getAllCustomers = async (req, res, next) => {
       },
     });
   } catch (error) {
+    console.error('❌ getAllCustomers error:', error);
     next(error);
   }
 };
@@ -95,6 +95,7 @@ const getMetricsOverview = async (req, res, next) => {
       },
     });
   } catch (error) {
+    console.error('❌ getMetricsOverview error:', error);
     next(error);
   }
 };
@@ -102,87 +103,109 @@ const getMetricsOverview = async (req, res, next) => {
 // Get metrics trends for charts
 const getMetricsTrends = async (req, res, next) => {
   try {
-    // Get bookings per month (last 12 months)
     const twelveMonthsAgo = new Date();
     twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
 
-    const bookingsPerMonth = await prisma.$queryRaw`
-      SELECT
-        DATE_TRUNC('month', "bookingDate") as month,
-        COUNT(*) as count
-      FROM "Booking"
-      WHERE "bookingDate" >= ${twelveMonthsAgo}
-      GROUP BY DATE_TRUNC('month', "bookingDate")
-      ORDER BY month ASC
-    `;
+    const bookings = await prisma.booking.findMany({
+      where: {
+        bookingDate: { gte: twelveMonthsAgo },
+      },
+      select: { bookingDate: true },
+    });
 
-    // Get revenue trend (last 12 months)
-    const revenueTrend = await prisma.$queryRaw`
-      SELECT
-        DATE_TRUNC('month', "bookingDate") as month,
-        SUM("totalPrice") as revenue
-      FROM "Booking"
-      WHERE "bookingDate" >= ${twelveMonthsAgo}
-        AND "status" IN ('approved', 'completed')
-      GROUP BY DATE_TRUNC('month', "bookingDate")
-      ORDER BY month ASC
-    `;
+    const bookingsPerMonth = {};
+    bookings.forEach(booking => {
+      if (booking.bookingDate) {
+        const month = `${booking.bookingDate.getFullYear()}-${String(booking.bookingDate.getMonth() + 1).padStart(2, '0')}`;
+        bookingsPerMonth[month] = (bookingsPerMonth[month] || 0) + 1;
+      }
+    });
 
-    // Get top packages by booking count
+    const bookingsPerMonthArray = Object.keys(bookingsPerMonth).sort().map(month => ({
+      month,
+      count: bookingsPerMonth[month],
+    }));
+
+    // Revenue trend
+    const revenueBookings = await prisma.booking.findMany({
+      where: {
+        bookingDate: { gte: twelveMonthsAgo },
+        status: { in: ['approved', 'completed'] },
+      },
+      select: { bookingDate: true, totalPrice: true },
+    });
+
+    const revenueTrend = {};
+    revenueBookings.forEach(booking => {
+      if (booking.bookingDate && booking.totalPrice) {
+        const month = `${booking.bookingDate.getFullYear()}-${String(booking.bookingDate.getMonth() + 1).padStart(2, '0')}`;
+        revenueTrend[month] = (revenueTrend[month] || 0) + booking.totalPrice;
+      }
+    });
+
+    const revenueTrendArray = Object.keys(revenueTrend).sort().map(month => ({
+      month,
+      revenue: revenueTrend[month],
+    }));
+
+    // Top packages
     const topPackages = await prisma.booking.groupBy({
       by: ['packageId'],
-      _count: {
-        id: true,
-      },
-      _sum: {
-        totalPrice: true,
-      },
-      orderBy: {
-        _count: {
-          id: 'desc',
-        },
-      },
+      _count: { id: true },
+      _sum: { totalPrice: true },
+      orderBy: [{ _count: { id: 'desc' } }],
       take: 10,
     });
 
-    // Get package details for top packages
     const topPackagesWithDetails = await Promise.all(
-      topPackages.map(async (booking) => {
-        const package = await prisma.package.findUnique({
-          where: { id: booking.packageId },
+      topPackages.map(async (pkg) => {
+        if (!pkg.packageId) return null;
+        const packageData = await prisma.package.findUnique({
+          where: { id: pkg.packageId },
           select: { title: true, slug: true, price: true },
         });
         return {
-          packageId: booking.packageId,
-          packageTitle: package?.title || 'Unknown',
-          packageSlug: package?.slug || 'unknown',
-          bookingCount: booking._count.id,
-          totalRevenue: booking._sum.totalPrice || 0,
-          averagePrice: package?.price || 0,
+          packageId: pkg.packageId,
+          packageTitle: packageData?.title || 'Unknown',
+          packageSlug: packageData?.slug || 'unknown',
+          bookingCount: pkg._count.id,
+          totalRevenue: pkg._sum.totalPrice || 0,
+          averagePrice: packageData?.price || 0,
         };
       })
     );
 
-    // Get customer growth (last 12 months)
-    const customerGrowth = await prisma.$queryRaw`
-      SELECT
-        DATE_TRUNC('month', "createdAt") as month,
-        COUNT(*) as count
-      FROM "User"
-      WHERE "createdAt" >= ${twelveMonthsAgo}
-        AND "role" = 'customer'
-      GROUP BY DATE_TRUNC('month', "createdAt")
-      ORDER BY month ASC
-    `;
+    // Customer growth
+    const customers = await prisma.user.findMany({
+      where: {
+        createdAt: { gte: twelveMonthsAgo },
+        role: 'customer',
+      },
+      select: { createdAt: true },
+    });
+
+    const customerGrowth = {};
+    customers.forEach(customer => {
+      if (customer.createdAt) {
+        const month = `${customer.createdAt.getFullYear()}-${String(customer.createdAt.getMonth() + 1).padStart(2, '0')}`;
+        customerGrowth[month] = (customerGrowth[month] || 0) + 1;
+      }
+    });
+
+    const customerGrowthArray = Object.keys(customerGrowth).sort().map(month => ({
+      month,
+      count: customerGrowth[month],
+    }));
 
     res.json({
-      bookingsPerMonth,
-      revenueTrend,
-      topPackages: topPackagesWithDetails,
-      customerGrowth,
+      bookingsPerMonth: bookingsPerMonthArray,
+      revenueTrend: revenueTrendArray,
+      topPackages: topPackagesWithDetails.filter(Boolean),
+      customerGrowth: customerGrowthArray,
     });
   } catch (error) {
-    next(error);
+    console.error('❌ Dashboard trends error:', error);
+    res.status(500).json({ error: 'Failed to fetch dashboard trends', details: error.message });
   }
 };
 
@@ -191,35 +214,24 @@ const getRecentActivity = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 20;
 
-    // Get recent bookings
     const recentBookings = await prisma.booking.findMany({
       take: limit,
       orderBy: { bookingDate: 'desc' },
       include: {
-        customer: {
-          select: { name: true, email: true },
-        },
-        package: {
-          select: { title: true, slug: true },
-        },
+        customer: { select: { name: true, email: true } },
+        package: { select: { title: true, slug: true } },
       },
     });
 
-    // Get recent reviews
     const recentReviews = await prisma.review.findMany({
       take: limit,
       orderBy: { createdAt: 'desc' },
       include: {
-        customer: {
-          select: { name: true },
-        },
-        package: {
-          select: { title: true, slug: true },
-        },
+        customer: { select: { name: true } },
+        package: { select: { title: true, slug: true } },
       },
     });
 
-    // Combine and sort by date
     const activities = [
       ...recentBookings.map(booking => ({
         type: 'booking',
@@ -240,6 +252,7 @@ const getRecentActivity = async (req, res, next) => {
 
     res.json({ activities });
   } catch (error) {
+    console.error('❌ getRecentActivity error:', error);
     next(error);
   }
 };
@@ -260,7 +273,7 @@ const getSystemHealth = async (req, res, next) => {
       prisma.user.count({
         where: {
           updatedAt: {
-            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Last 30 days
+            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
           },
         },
       }),
@@ -287,6 +300,7 @@ const getSystemHealth = async (req, res, next) => {
       },
     });
   } catch (error) {
+    console.error('❌ getSystemHealth error:', error);
     next(error);
   }
 };

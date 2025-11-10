@@ -6,6 +6,7 @@ import useAuth from '../hooks/useAuth';
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +24,7 @@ const RegisterPage: React.FC = () => {
       alert('Please agree to the terms and conditions');
       return;
     }
-    await register(name, email, password);
+    await register(name, email, phone, password);
   };
 
   const passwordRequirements = [
@@ -48,7 +49,7 @@ const RegisterPage: React.FC = () => {
             </div>
           </div>
           <h1 className="text-4xl font-bold text-secondary-900 mb-3">
-            Join Travel Dash
+            Join Travores
           </h1>
           <p className="text-lg text-secondary-600">
             Create your account and start your adventure
@@ -89,6 +90,23 @@ const RegisterPage: React.FC = () => {
                 placeholder="Enter your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="phone" className="block text-sm font-semibold text-secondary-900 mb-2">
+                Phone Number
+              </label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                autoComplete="tel"
+                required
+                className="input-field"
+                placeholder="Enter your phone number"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
               />
             </div>
 
@@ -271,3 +289,94 @@ const RegisterPage: React.FC = () => {
 };
 
 export default RegisterPage;
+{/* <environment_details>
+# VSCode Visible Files
+../../response_b0e62dc5-a83d-4dcb-baec-0caea45c34d2/0
+../../response_b0e62dc5-a83d-4dcb-baec-0caea45c34d2/1
+../../response_b0e62dc5-a83d-4dcb-baec-0caea45c34d2/2
+../../response_215201a1-cf0d-417b-8148-4dcbdfd5959d/0
+../../response_215201a1-cf0d-417b-8148-4dcbdfd5959d/1
+../../response_215201a1-cf0d-417b-8148-4dcbdfd5959d/2
+../../response_5f690271-39ee-4537-9db2-b599fa3faa9e/0
+../../response_5f690271-39ee-4537-9db2-b599fa3faa9e/1
+../../response_5f690271-39ee-4537-9db2-b599fa3faa9e/2
+../../response_5f690271-39ee-4537-9db2-b599fa3faa9e/3
+../../response_5f690271-39ee-4537-9db2-b599fa3faa9e/4
+../../response_8cc7b388-e072-43a5-af8b-206cc3db3c61/0
+../../response_8cc7b388-e072-43a5-af8b-206cc3db3c61/1
+../../response_8cc7b388-e072-43a5-af8b-206cc3db3c61/2
+travel-dash/frontend/src/pages/RegisterPage.tsx
+
+# VSCode Visible Files
+../../response_b0e62dc5-a83d-4dcb-baec-0caea45c34d2/0
+../../response_b0e62dc5-a83d-4dcb-baec-0caea45c34d2/1
+../../response_b0e62dc5-a83d-4dcb-baec-0caea45c34d2/2
+../../response_215201a1-cf0d-417b-8148-4dcbdfd5959d/0
+../../response_215201a1-cf0d-417b-8148-4dcbdfd5959d/1
+../../response_215201a1-cf0d-417b-8148-4dcbdfd5959d/2
+../../response_5f690271-39ee-4537-9db2-b599fa3faa9e/0
+../../response_5f690271-39ee-4537-9db2-b599fa3faa9e/1
+../../response_5f690271-39ee-4537-9db2-b599fa3faa9e/2
+../../response_5f690271-39ee-4537-9db2-b599fa3faa9e/3
+../../response_5f690271-39ee-4537-9db2-b599fa3faa9e/4
+../../response_8cc7b388-e072-43a5-af8b-206cc3db3c61/0
+../../response_8cc7b388-e072-43a5-af8b-206cc3db3c61/1
+../../response_8cc7b388-e072-43a5-af8b-206cc3db3c61/2
+travel-dash/frontend/src/pages/RegisterPage.tsx
+
+# VSCode Open Tabs
+travel-dash/frontend/tsconfig.app.json
+travel-dash/frontend/postcss.config.cjs
+travel-dash/backend/src/routes/auth.js
+travel-dash/backend/src/utils/prisma.js
+travel-dash/backend/src/middleware/errorHandler.js
+travel-dash/backend/src/controllers/bookingController.js
+travel-dash/backend/src/controllers/reviewController.js
+travel-dash/backend/src/routes/bookings.js
+travel-dash/backend/src/routes/reviews.js
+travel-dash/backend/src/routes/index.js
+travel-dash/frontend/src/pages/admin/AdminPackagesPage.tsx
+travel-dash/backend/src/middleware/upload.js
+travel-dash/backend/public/uploads/galleryImages-1762518201949-166007214.jpg
+travel-dash/backend/public/uploads/mainImage-1762517642713-492287.webp
+travel-dash/backend/public/uploads/mainImage-1762518201937-145497171.jpg
+travel-dash/frontend/src/pages/admin/EditPackagePage.tsx
+travel-dash/backend/server.js
+travel-dash/backend/response.txt
+travel-dash/backend/src/utils/validation.js
+travel-dash/frontend/src/pages/AboutUsPage.tsx
+travel-dash/frontend/src/pages/ContactPage.tsx
+travel-dash/frontend/tailwind.config.js
+travel-dash/frontend/src/components/AdminLayout.tsx
+travel-dash/frontend/src/components/AdminSidebar.tsx
+travel-dash/frontend/src/pages/AllPackagesPage.tsx
+travel-dash/frontend/src/pages/PackageDetailsPage.tsx
+travel-dash/frontend/src/components/BookingModal.tsx
+travel-dash/frontend/src/pages/HomePage.tsx
+travel-dash/frontend/src/components/GlobalNavbar.tsx
+travel-dash/frontend/src/components/Footer.tsx
+travel-dash/frontend/src/pages/LoginPage.tsx
+travel-dash/frontend/src/pages/RegisterPage.tsx
+travel-dash/frontend/src/App.tsx
+travel-dash/backend/src/routes/packages.js
+travel-dash/frontend/src/pages/admin/AddPackagePage.tsx
+travel-dash/backend/src/middleware/auth.js
+travel-dash/backend/src/controllers/adminController.js
+travel-dash/frontend/src/index.css
+travel-dash/backend/prisma/schema.prisma
+travel-dash/TODO.md
+travel-dash/backend/prisma/seed.js
+travel-dash/backend/src/controllers/userController.js
+travel-dash/frontend/src/context/AuthContext.tsx
+travel-dash/frontend/src/pages/admin/AdminDashboardPage.tsx
+travel-dash/frontend/src/pages/admin/AdminCustomersPage.tsx
+travel-dash/frontend/src/pages/admin/AdminBookingsPage.tsx
+travel-dash/frontend/src/pages/MyBookingsPage.tsx
+travel-dash/backend/src/routes/admin.js
+travel-dash/frontend/src/hooks/useAuth.ts
+travel-dash/backend/scripts/delete_user.sql
+travel-dash/frontend/src/main.tsx
+
+# Actively Running Terminals
+## Original command: `cd travel-dash/frontend && npm run dev`
+</environment_details> */}

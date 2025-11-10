@@ -5,7 +5,7 @@ import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 const WhatOurTravelersSay: React.FC = () => {
   const testimonials = [
     {
-      quote: "Travel Dash made our honeymoon in Bali absolutely magical! From the moment we landed, everything was perfectly arranged. The local guide knew all the hidden gems, and the villa was beyond our expectations. Truly unforgettable!",
+      quote: "Travores made our honeymoon in Bali absolutely magical! From the moment we landed, everything was perfectly arranged. The local guide knew all the hidden gems, and the villa was beyond our expectations. Truly unforgettable!",
       author: "Sarah & Michael Chen",
       location: "Bali, Indonesia",
       rating: 5,
@@ -14,7 +14,7 @@ const WhatOurTravelersSay: React.FC = () => {
       verified: true,
     },
     {
-      quote: "As a solo traveler, I was nervous about exploring Tokyo alone. Travel Dash took care of everything - from airport pickup to restaurant reservations. The team was available 24/7, and I felt completely safe throughout my journey.",
+      quote: "As a solo traveler, I was nervous about exploring Tokyo alone. Travores took care of everything - from airport pickup to restaurant reservations. The team was available 24/7, and I felt completely safe throughout my journey.",
       author: "Emma Rodriguez",
       location: "Tokyo, Japan",
       rating: 5,
@@ -60,7 +60,7 @@ const WhatOurTravelersSay: React.FC = () => {
             What Our Travelers Say
           </h2>
           <p className="text-lg text-secondary-600 max-w-3xl mx-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            Don't just take our word for it. Hear from real travelers who have experienced the Travel Dash difference
+            Don't just take our word for it. Hear from real travelers who have experienced the Travores difference
             and discovered their perfect adventure.
           </p>
         </div>

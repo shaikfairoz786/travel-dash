@@ -255,6 +255,31 @@ const updateBookingStatus = async (req, res, next) => {
   }
 };
 
+// Check if user can review a package (customer only)
+const checkReviewEligibility = async (req, res, next) => {
+  const { packageId } = req.params;
+
+  try {
+    // Check if user has an approved or completed booking for this package where travel has ended
+    const booking = await prisma.booking.findFirst({
+      where: {
+        customerId: req.user.id,
+        packageId,
+        status: { in: ['approved', 'completed'] },
+        travelEnd: {
+          lt: new Date(), // Travel end date is in the past
+        },
+      },
+    });
+
+    const canReview = !!booking;
+
+    res.json({ canReview });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Get booking statistics (admin only)
 const getBookingStats = async (req, res, next) => {
   try {
@@ -298,5 +323,6 @@ module.exports = {
   getAllBookings,
   getBookingById,
   updateBookingStatus,
+  checkReviewEligibility,
   getBookingStats,
 };

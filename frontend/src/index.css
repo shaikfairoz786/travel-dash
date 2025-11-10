@@ -7,6 +7,8 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
@@ -14,6 +16,8 @@
     background-color: #ffffff;
     color: #0f172a;
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -27,10 +31,12 @@
 @layer components {
   .btn-primary {
     @apply bg-gradient-primary text-white font-medium px-6 py-3 rounded-lg shadow-soft hover:shadow-medium transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    cursor: pointer;
   }
 
   .btn-secondary {
     @apply bg-white text-primary-600 border-2 border-primary-200 font-medium px-6 py-3 rounded-lg shadow-soft hover:bg-primary-50 hover:border-primary-300 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    cursor: pointer;
   }
 
   .card {
@@ -39,6 +45,7 @@
 
   .input-field {
     @apply w-full px-4 py-3 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-white;
+    appearance: none;
   }
 
   .hero-text {
@@ -74,5 +81,12 @@
 
   .animate-bounce-gentle {
     animation: bounceGentle 2s infinite;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
   }
 }

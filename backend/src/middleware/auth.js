@@ -1,13 +1,16 @@
 const { createClient } = require('@supabase/supabase-js');
 const prisma = require('../utils/prisma');
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
+// Initialize Supabase client (only if credentials are available)
+let supabase = null;
+if (process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
+  supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY
+  );
+}
 
-// Middleware to verify Supabase JWT token
+// Middleware to verify JWT token
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -17,27 +20,23 @@ const authenticateToken = async (req, res, next) => {
   }
 
   try {
-    // Verify the JWT token with Supabase
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret-key');
 
-    if (error || !user) {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
-
-    // Get user role from our database
+    // Get user from database
     const dbUser = await prisma.user.findUnique({
-      where: { id: user.id },
+      where: { id: decoded.userId },
       select: { id: true, email: true, name: true, role: true }
     });
 
     if (!dbUser) {
-      return res.status(401).json({ error: 'User not found in database' });
+      return res.status(401).json({ error: 'User not found' });
     }
 
     req.user = {
-      id: user.id,
-      email: user.email,
-      name: dbUser.name || user.user_metadata?.name || 'User',
+      id: dbUser.id,
+      email: dbUser.email,
+      name: dbUser.name,
       role: dbUser.role
     };
 

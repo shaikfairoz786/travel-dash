@@ -1,26 +1,27 @@
 import React, { useState } from 'react';
-import { MagnifyingGlassIcon, MapPinIcon, CalendarIcon, UsersIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, MapPinIcon, UsersIcon } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
 
-interface SearchBarProps {
-  onSearch: (searchTerm: string) => void;
-}
-
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+const SearchBar: React.FC = () => {
   const [destination, setDestination] = useState('');
-  const [checkIn, setCheckIn] = useState('');
-  const [checkOut, setCheckOut] = useState('');
   const [guests, setGuests] = useState('2');
+  const navigate = useNavigate();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch(searchTerm || destination);
+
+    // Navigate to packages page with search query
+    if (destination.trim()) {
+      navigate(`/packages?search=${encodeURIComponent(destination.trim())}`);
+    } else {
+      navigate('/packages');
+    }
   };
 
   return (
     <div className="max-w-4xl mx-auto">
       <form onSubmit={handleSearch} className="bg-white rounded-2xl shadow-large p-2 animate-fade-in">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           {/* Destination */}
           <div className="relative">
             <label htmlFor="destination" className="block text-xs font-semibold text-secondary-700 mb-1">
@@ -35,40 +36,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
                 className="w-full pl-9 pr-3 py-3 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 text-secondary-900 placeholder-secondary-500"
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Check-in Date */}
-          <div className="relative">
-            <label htmlFor="checkIn" className="block text-xs font-semibold text-secondary-700 mb-1">
-              Check-in
-            </label>
-            <div className="relative">
-              <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-secondary-400" />
-              <input
-                id="checkIn"
-                type="date"
-                className="w-full pl-9 pr-3 py-3 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 text-secondary-900"
-                value={checkIn}
-                onChange={(e) => setCheckIn(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Check-out Date */}
-          <div className="relative">
-            <label htmlFor="checkOut" className="block text-xs font-semibold text-secondary-700 mb-1">
-              Check-out
-            </label>
-            <div className="relative">
-              <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-secondary-400" />
-              <input
-                id="checkOut"
-                type="date"
-                className="w-full pl-9 pr-3 py-3 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 text-secondary-900"
-                value={checkOut}
-                onChange={(e) => setCheckOut(e.target.value)}
               />
             </div>
           </div>
@@ -122,7 +89,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
                 type="button"
                 onClick={() => {
                   setDestination(city);
-                  setSearchTerm(city);
                 }}
                 className="px-3 py-1 bg-secondary-100 hover:bg-primary-100 text-secondary-700 hover:text-primary-700 rounded-full text-sm font-medium transition-all duration-300 hover:scale-105"
               >

@@ -11,6 +11,9 @@ router.post('/', authenticateToken, authorizeRoles('customer'), bookingControlle
 // Get authenticated customer's bookings (customer only)
 router.get('/my', authenticateToken, authorizeRoles('customer'), bookingController.getMyBookings);
 
+// Check review eligibility for a package (customer only)
+router.get('/check-eligibility/:packageId', authenticateToken, authorizeRoles('customer'), bookingController.checkReviewEligibility);
+
 // Get all bookings (admin only)
 router.get('/', authenticateToken, authorizeRoles('admin'), bookingController.getAllBookings);
 

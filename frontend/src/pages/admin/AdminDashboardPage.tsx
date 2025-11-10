@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+ import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import useAuth from '../../hooks/useAuth';
 
@@ -10,27 +10,28 @@ interface MetricsOverview {
 }
 
 interface BookingTrendData {
-  bookingDate: string;
-  _count: { id: number };
+  month: string;
+  count: number;
 }
 
 interface RevenueTrendData {
-  bookingDate: string;
-  _sum: { totalPrice: number };
+  month: string;
+  revenue: number;
 }
 
 interface TopPackageData {
   packageId: string;
-  _count: { id: number };
-  _sum: { totalPrice: number };
   packageTitle: string;
   packageSlug: string;
+  bookingCount: number;
+  totalRevenue: number;
+  averagePrice: number;
 }
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28DFF', '#FF6F61', '#6B5B95', '#88B04B'];
 
 const AdminDashboardPage: React.FC = () => {
-  const { session } = useAuth();
+  const { session, user } = useAuth();
   const [overview, setOverview] = useState<MetricsOverview | null>(null);
   const [trends, setTrends] = useState<{ bookingsPerMonth: BookingTrendData[]; revenueTrend: RevenueTrendData[]; topPackages: TopPackageData[] } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -39,22 +40,28 @@ const AdminDashboardPage: React.FC = () => {
   useEffect(() => {
     const fetchMetrics = async () => {
       console.log('Fetching metrics...');
-      if (!session?.access_token) {
+
+      // Use the same token for both admin and customer users
+      const token = session?.access_token;
+
+      if (!token) {
         setError('Not authenticated');
         setLoading(false);
         console.error('Not authenticated');
         return;
       }
 
+      console.log('Using token for request:', token.substring(0, 50) + '...');
+
       try {
         const overviewResponse = await fetch('http://localhost:5000/api/admin/dashboard/overview', {
           headers: {
-            'Authorization': `Bearer ${session.access_token}`,
+            'Authorization': `Bearer ${token}`,
           },
         });
         const trendsResponse = await fetch('http://localhost:5000/api/admin/dashboard/trends', {
           headers: {
-            'Authorization': `Bearer ${session.access_token}`,
+            'Authorization': `Bearer ${token}`,
           },
         });
 
@@ -71,7 +78,7 @@ const AdminDashboardPage: React.FC = () => {
         console.log('overviewData:', overviewData);
         console.log('trendsData:', trendsData);
 
-        setOverview(overviewData);
+        setOverview(overviewData.overview || overviewData);
         setTrends(trendsData);
       } catch (err: unknown) {
         console.error('Error fetching metrics:', err);
@@ -81,8 +88,10 @@ const AdminDashboardPage: React.FC = () => {
       }
     };
 
-    fetchMetrics();
-  }, [session]);
+    if (user || session) {
+      fetchMetrics();
+    }
+  }, [user, session]);
 
   console.log('Render state:', { loading, error, overview, trends });
 
@@ -95,29 +104,27 @@ const AdminDashboardPage: React.FC = () => {
   }
 
   const formatChartData = (data: unknown[], key: string, valueKey: string) => {
-    const getNestedValue = (obj: unknown, path: string) => path.split('.').reduce((acc: unknown, part: string) => (acc as Record<string, unknown>)?.[part], obj);
     const monthlyData: Record<string, number> = {};
     if (data) {
       data.forEach(item => {
         const itemObj = item as Record<string, unknown>;
-        const date = new Date(itemObj[key] as string);
-        const monthYear = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-        const value = getNestedValue(item, valueKey);
+        const month = itemObj[key] as string;
+        const value = itemObj[valueKey] as number;
         if (typeof value === 'number') {
-          monthlyData[monthYear] = (monthlyData[monthYear] || 0) + value;
+          monthlyData[month] = (monthlyData[month] || 0) + value;
         }
       });
     }
     const dataKey = valueKey.replace('.', '_');
-    return Object.keys(monthlyData).sort().map(monthYear => ({
-      name: monthYear,
-      [dataKey]: monthlyData[monthYear],
+    return Object.keys(monthlyData).sort().map(month => ({
+      name: month,
+      [dataKey]: monthlyData[month],
     }));
   };
 
-  const bookingsChartData = trends ? formatChartData(trends.bookingsPerMonth, 'bookingDate', '_count.id') : [];
-  const revenueChartData = trends ? formatChartData(trends.revenueTrend, 'bookingDate', '_sum.totalPrice') : [];
-  const topPackagesChartData = trends ? trends.topPackages.map(pkg => ({ name: pkg.packageTitle, value: pkg._count.id })) : [];
+  const bookingsChartData = trends ? formatChartData(trends.bookingsPerMonth, 'month', 'count') : [];
+  const revenueChartData = trends ? formatChartData(trends.revenueTrend, 'month', 'revenue') : [];
+  const topPackagesChartData = trends ? trends.topPackages.map(pkg => ({ name: pkg.packageTitle, value: pkg.bookingCount })) : [];
 
   return (
     <div className="container mx-auto p-4">
@@ -155,7 +162,7 @@ const AdminDashboardPage: React.FC = () => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="_count_id" fill="#4F46E5" name="Bookings" />
+                <Bar dataKey="count" fill="#4F46E5" name="Bookings" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -169,7 +176,7 @@ const AdminDashboardPage: React.FC = () => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="_sum_totalPrice" stroke="#10B981" name="Revenue" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                <Line type="monotone" dataKey="revenue" stroke="#10B981" name="Revenue" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>

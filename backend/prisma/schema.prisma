@@ -11,6 +11,7 @@ model User {
   id           String   @id @default(uuid())
   name         String
   email        String   @unique
+  phone        String?
   passwordHash String
   role         String   @default("customer")
   createdAt    DateTime @default(now())
@@ -22,24 +23,31 @@ model User {
 }
 
 model Package {
-  id          String   @id @default(uuid())
-  title       String
-  slug        String   @unique
-  shortDesc   String?
-  overview    String?
-  itinerary   Json?
-  inclusions  Json?
-  price       Float
-  currency    String   @default("INR")
-  images      Json?
-  active      Boolean  @default(true)
-  createdBy   String
-  createdAt   DateTime @default(now())
-  bookings    Booking[]
-  reviews     Review[]
+  id            String   @id @default(uuid())
+  title         String
+  slug          String   @unique
+  shortDesc     String?
+  overview      String?              // ✅ Added (was description)
+  itinerary     Json?                // ✅ Already correct
+  inclusions    Json?                // ✅ Renamed from included
+  exclusions    Json?                // ✅ Optional extra for excluded items
+  price         Float
+  currency      String   @default("INR")
+  images        Json?                // ✅ Added (was imageUrl)
+  active        Boolean  @default(true)
+  createdBy     String
+  createdAt     DateTime @default(now())
+  duration      String?
+  location      String?
+  maxGroupSize  Int?
+  difficulty    String?
+  highlights    Json?
+  bookings      Booking[]
+  reviews       Review[]
 
   @@map("packages")
 }
+
 
 model Booking {
   id           String   @id @default(uuid())
@@ -68,5 +76,18 @@ model Review {
   comment     String?
   createdAt   DateTime @default(now())
 
+  @@unique([packageId, customerId])
   @@map("reviews")
+}
+
+model Contact {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  status    String   @default("unread") // unread, read, replied
+  createdAt DateTime @default(now())
+
+  @@map("contacts")
 }

@@ -5,7 +5,7 @@ interface BookingModalProps {
   packageName: string;
   price: number;
   onClose: () => void;
-  onBook: (bookingDetails: any) => void;
+  onBook: () => void;
 }
 
 const BookingModal: React.FC<BookingModalProps> = ({ packageId, packageName, price, onClose, onBook }) => {
@@ -13,19 +13,57 @@ const BookingModal: React.FC<BookingModalProps> = ({ packageId, packageName, pri
   const [travelStart, setTravelStart] = useState('');
   const [travelEnd, setTravelEnd] = useState('');
   const [notes, setNotes] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const totalPrice = quantity * price;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onBook({
-      packageId,
-      quantity,
-      travelStart,
-      travelEnd,
-      notes,
-      totalPrice,
-    });
+    setLoading(true);
+    setError(null);
+
+    try {
+      const bookingData: {
+        packageId: string;
+        quantity: number;
+        travelStart: string;
+        travelEnd: string;
+        notes?: string;
+      } = {
+        packageId,
+        quantity,
+        travelStart,
+        travelEnd,
+      };
+
+      // Only include notes if it's not empty
+      if (notes.trim()) {
+        bookingData.notes = notes.trim();
+      }
+
+      const response = await fetch('http://localhost:5000/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Booking failed');
+      }
+
+      await response.json();
+      alert('Booking created successfully!');
+      onBook();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,7 +79,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ packageId, packageName, pri
               min="1"
               value={quantity}
               onChange={(e) => setQuantity(parseInt(e.target.value))}
-              className="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
+              className="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200"
               required
             />
           </div>
@@ -52,7 +90,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ packageId, packageName, pri
               id="travelStart"
               value={travelStart}
               onChange={(e) => setTravelStart(e.target.value)}
-              className="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
+              className="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200"
               required
             />
           </div>
@@ -63,7 +101,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ packageId, packageName, pri
               id="travelEnd"
               value={travelEnd}
               onChange={(e) => setTravelEnd(e.target.value)}
-              className="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
+              className="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200"
               required
             />
           </div>
@@ -73,27 +111,34 @@ const BookingModal: React.FC<BookingModalProps> = ({ packageId, packageName, pri
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
+              className="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200"
               rows={3}
               placeholder="Any special requests or information?"
             ></textarea>
           </div>
           <div className="mb-8 text-center">
-            <p className="text-2xl font-bold text-gray-800">Total Price: <span className="text-indigo-600">{price.toFixed(2)} {packageName}</span></p>
+            <p className="text-2xl font-bold text-gray-800">Total Price: <span className="text-primary-600">${totalPrice.toFixed(2)}</span></p>
           </div>
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              {error}
+            </div>
+          )}
           <div className="flex justify-end space-x-4">
             <button
               type="button"
               onClick={onClose}
-              className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200"
+              disabled={loading}
+              className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200 disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-200"
+              disabled={loading}
+              className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition duration-200 disabled:opacity-50"
             >
-              Confirm Booking
+              {loading ? 'Booking...' : 'Confirm Booking'}
             </button>
           </div>
         </form>

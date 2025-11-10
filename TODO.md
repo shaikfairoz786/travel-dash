@@ -1,0 +1,14 @@
+- [x] Update validation.js to match Prisma schema field names (overview, inclusions, exclusions, images)
+- [x] Update EditPackagePage.tsx interface to use new field names
+- [ ] Update EditPackagePage.tsx fetch logic to handle new field names
+- [ ] Update EditPackagePage.tsx form fields and submit logic to use new field names
+- [ ] Test the update package functionality
+- [x] Add Contact model to Prisma schema
+- [x] Create contactController.js with CRUD operations
+- [x] Create contacts.js route file
+- [x] Add contacts routes to index.js
+- [x] Run Prisma migration for contacts table
+- [x] Update ContactPage.tsx to submit form data to backend
+- [x] Add Contacts link to AdminSidebar.tsx
+- [x] Create AdminContactsPage.tsx for managing contact messages
+- [x] Add AdminContactsPage route to App.tsx

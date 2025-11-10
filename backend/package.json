@@ -4,6 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "echo 'No build step required'",
     "prisma.seed": "node prisma/seed.js",
     "postinstall": "prisma generate && npm run prisma.seed"
   },
@@ -23,6 +26,9 @@
     "helmet": "^8.1.0",
     "joi": "^18.0.1",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
+    "pg": "^8.16.3",
+    "postgres": "^3.4.7",
     "prisma": "^6.18.0",
     "winston": "^3.18.3"
   },

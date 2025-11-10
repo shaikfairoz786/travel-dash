@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { GlobeAltIcon, PhoneIcon, EnvelopeIcon, MapPinIcon, HeartIcon } from '@heroicons/react/24/outline';
+import { PhoneIcon, EnvelopeIcon, MapPinIcon, HeartIcon } from '@heroicons/react/24/outline';
 
 const Footer: React.FC = () => {
   return (
@@ -17,11 +17,9 @@ const Footer: React.FC = () => {
             {/* Company Info */}
             <div className="animate-slide-in-left">
               <div className="flex items-center mb-6">
-                <div className="bg-gradient-primary rounded-full p-2 mr-3">
-                  <GlobeAltIcon className="h-8 w-8 text-white" />
-                </div>
+                <img src="/WhatsApp Image 2025-11-08 at 20.50.30_f312a8331.jpg" alt="Travores Logo" className="h-10 w-10 rounded-full object-cover mr-3" />
                 <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                  Travel Dash
+                  Travores
                 </span>
               </div>
               <p className="text-secondary-300 mb-6 leading-relaxed">
@@ -29,19 +27,7 @@ const Footer: React.FC = () => {
                 We make dreams come true, one journey at a time.
               </p>
               <div className="flex space-x-4">
-                <a href="#" className="bg-secondary-800 hover:bg-primary-600 p-3 rounded-full transition-all duration-300 hover:scale-110 group">
-                  <span className="sr-only">Facebook</span>
-                  <svg className="h-5 w-5 text-secondary-300 group-hover:text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                  </svg>
-                </a>
-                <a href="#" className="bg-secondary-800 hover:bg-primary-600 p-3 rounded-full transition-all duration-300 hover:scale-110 group">
-                  <span className="sr-only">Twitter</span>
-                  <svg className="h-5 w-5 text-secondary-300 group-hover:text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                  </svg>
-                </a>
-                <a href="#" className="bg-secondary-800 hover:bg-primary-600 p-3 rounded-full transition-all duration-300 hover:scale-110 group">
+                <a href="https://instagram.com/travelwithtravores" target="_blank" rel="noopener noreferrer" className="bg-secondary-800 hover:bg-primary-600 p-3 rounded-full transition-all duration-300 hover:scale-110 group">
                   <span className="sr-only">Instagram</span>
                   <svg className="h-5 w-5 text-secondary-300 group-hover:text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12.017 0C8.396 0 7.996.014 6.8.067 5.609.12 4.694.265 3.923.51c-.8.248-1.48.576-2.156.95C.8 1.834.432 2.502.216 3.278c-.245.8-.372 1.714-.42 2.905C-.01 7.375 0 7.775 0 11.396s-.014 3.996-.067 5.192c-.053 1.196-.265 2.111-.51 2.882-.248.8-.576 1.48-.95 2.156-.374.676-1.042 1.044-1.818 1.26-.8.245-1.714.372-2.905.42C3.621 23.99 4.021 24 7.642 24s3.996-.014 5.192-.067c1.196-.053 2.111-.265 2.882-.51.8-.248 1.48-.576 2.156-.95.676-.374 1.044-1.042 1.26-1.818.245-.8.372-1.714.42-2.905.053-1.196.067-1.596.067-5.217s.014-3.996.067-5.192c.053-1.196.265-2.111.51-2.882.248-.8.576-1.48.95-2.156C22.166 1.2 22.834.832 23.61.616c.8-.245 1.714-.372 2.905-.42C20.379.01 19.979 0 16.358 0s-3.996.014-5.192.067c-1.196.053-2.111.265-2.882.51-.8.248-1.48.576-2.156.95C1.834.8.832 1.168.616 1.944c-.245.8-.372 1.714-.42 2.905C.01 4.621 0 5.021 0 8.642zM12.017 5.838a6.163 6.163 0 100 12.326 6.163 6.163 0 000-12.326zm0 10.162a3.999 3.999 0 110-7.998 3.999 3.999 0 010 7.998zm6.406-11.845a1.44 1.44 0 11-2.88 0 1.44 1.44 0 012.88 0z"/>
@@ -65,7 +51,7 @@ const Footer: React.FC = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/about" className="text-secondary-300 hover:text-primary-400 transition-all duration-300 hover:translate-x-1 inline-block">
+                  <Link to="/about-us" className="text-secondary-300 hover:text-primary-400 transition-all duration-300 hover:translate-x-1 inline-block">
                     About Us
                   </Link>
                 </li>
@@ -111,17 +97,18 @@ const Footer: React.FC = () => {
                 <div className="flex items-start">
                   <MapPinIcon className="h-6 w-6 text-primary-400 mr-3 flex-shrink-0 mt-0.5" />
                   <span className="text-secondary-300 leading-relaxed">
-                    123 Travel Street<br />
-                    Adventure City, AC 12345
+                    Cherukuru Parachoor Mandalam<br />
+                    Prakasam District, Andhra Pradesh<br />
+                    523169
                   </span>
                 </div>
                 <div className="flex items-center">
                   <PhoneIcon className="h-6 w-6 text-primary-400 mr-3 flex-shrink-0" />
-                  <span className="text-secondary-300">+1 (555) 123-4567</span>
+                  <span className="text-secondary-300">+91 9014788475</span>
                 </div>
                 <div className="flex items-center">
                   <EnvelopeIcon className="h-6 w-6 text-primary-400 mr-3 flex-shrink-0" />
-                  <span className="text-secondary-300">info@traveldash.com</span>
+                  <span className="text-secondary-300">jagadeeshyedula@travores.com</span>
                 </div>
               </div>
             </div>
@@ -153,7 +140,7 @@ const Footer: React.FC = () => {
           <div className="container mx-auto px-4 py-6">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="flex items-center text-secondary-400 text-sm mb-4 md:mb-0">
-                <span>&copy; {new Date().getFullYear()} Travel Dash. All rights reserved.</span>
+                <span>&copy; {new Date().getFullYear()} Travores. All rights reserved.</span>
                 <HeartIcon className="h-4 w-4 text-red-500 mx-2 animate-pulse" />
                 <span>Made with love for travelers</span>
               </div>

@@ -1,6 +1,5 @@
 import React, { createContext, useState, useEffect, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createClient, SupabaseClient, Session } from '@supabase/supabase-js';
 
 interface User {
   id: string;
@@ -11,72 +10,67 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
+  session: { access_token: string } | null;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, password: string) => Promise<boolean>;
+  register: (name: string, email: string, phone: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  supabase: SupabaseClient;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Initialize Supabase client
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Missing Supabase environment variables');
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Storage keys for authentication
+const TOKEN_KEY = 'auth_token';
+const USER_KEY = 'auth_user';
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    // Initialize user synchronously from localStorage
+    const storedUser = localStorage.getItem(USER_KEY);
+    if (storedUser) {
+      try {
+        return JSON.parse(storedUser);
+      } catch {
+        localStorage.removeItem(USER_KEY);
+        localStorage.removeItem(TOKEN_KEY);
+      }
+    }
+    return null;
+  });
+
+  const [session, setSession] = useState<{ access_token: string } | null>(() => {
+    // Initialize session synchronously from localStorage
+    const storedToken = localStorage.getItem(TOKEN_KEY);
+    if (storedToken) {
+      return { access_token: storedToken };
+    }
+    return null;
+  });
+
   const navigate = useNavigate();
 
-  const isAuthenticated = !!session;
+  const isAuthenticated = !!user;
   const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session?.user) {
-        fetchUserProfile(session.user.id, session.access_token);
-      }
-    });
+    // Check if token is still valid on app start
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (token && user) {
+      // Optionally validate token with backend
+      fetchUserProfile(token);
+    }
+  }, []);
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session);
-      if (session?.user) {
-        await fetchUserProfile(session.user.id, session.access_token);
-        // Navigate to home page after successful auth (including email confirmation)
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          navigate('/');
-        }
-      } else {
-        setUser(null);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  const fetchUserProfile = async (userId: string, accessToken: string) => {
+  const fetchUserProfile = async (token: string) => {
     try {
       const response = await fetch('http://localhost:5000/api/auth/profile', {
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          'Authorization': `Bearer ${token}`,
         },
       });
 
@@ -84,19 +78,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const data = await response.json();
         setUser(data.user);
       } else {
-        console.error('Failed to fetch user profile');
+        // Token invalid, clear storage
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USER_KEY);
         setUser(null);
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
       setUser(null);
     }
   };
 
   const login = async (email: string, password: string) => {
     try {
-      // First try admin login via backend API
-      const adminResponse = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -104,51 +101,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         body: JSON.stringify({ email, password }),
       });
 
-      if (adminResponse.ok) {
-        const adminData = await adminResponse.json();
+      if (response.ok) {
+        const data = await response.json();
 
-        // Create a mock session for admin users
-        const mockSession = {
-          access_token: adminData.accessToken,
-          refresh_token: adminData.refreshToken,
-          expires_in: 3600, // 1 hour
-          token_type: 'bearer',
-          user: {
-            id: adminData.user.id,
-            email: adminData.user.email,
-            user_metadata: { name: adminData.user.name },
-            app_metadata: {},
-            aud: 'authenticated',
-            created_at: new Date().toISOString(),
-          },
-        };
+        // Store authentication data
+        localStorage.setItem(TOKEN_KEY, data.accessToken);
+        localStorage.setItem(USER_KEY, JSON.stringify(data.user));
 
-        setSession(mockSession as Session);
-        setUser(adminData.user);
-        navigate('/');
+        setUser(data.user);
+        setSession({ access_token: data.accessToken });
+
+        // Navigate based on user role
+        if (data.user.role === 'admin') {
+          navigate('/admin/dashboard');
+        } else {
+          navigate('/');
+        }
         return true;
-      }
-
-      // If admin login fails, try Supabase auth for regular users
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        alert(error.message);
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || 'Login failed');
         return false;
       }
-
-      if (data.session) {
-        setSession(data.session);
-        // User profile will be fetched via the auth state change listener
-        // Navigate to home page after successful login
-        navigate('/');
-        return true;
-      }
-
-      return false;
     } catch (error) {
       console.error('Login error', error);
       alert('An error occurred during login.');
@@ -156,30 +130,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (name: string, email: string, phone: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name: name,
-          }
-        }
+      const response = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email, phone, password }),
       });
 
-      if (error) {
-        alert(error.message);
-        return false;
-      }
-
-      if (data.user) {
-        alert('Registration successful! Please check your email to confirm your account.');
+      if (response.ok) {
+        alert('Registration successful! You can now log in.');
         navigate('/login');
         return true;
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'Registration failed');
+        return false;
       }
-
-      return false;
     } catch (error) {
       console.error('Registration error', error);
       alert('An error occurred during registration.');
@@ -189,7 +158,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      await supabase.auth.signOut();
+      // Clear authentication from localStorage
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+
       setUser(null);
       setSession(null);
       navigate('/login');
@@ -206,7 +178,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     isAuthenticated,
     isAdmin,
-    supabase,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

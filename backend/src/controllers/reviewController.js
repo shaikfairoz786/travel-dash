@@ -24,12 +24,10 @@ const createReview = async (req, res, next) => {
     }
 
     // Check if user has already reviewed this package
-    const existingReview = await prisma.review.findUnique({
+    const existingReview = await prisma.review.findFirst({
       where: {
-        packageId_customerId: {
-          packageId,
-          customerId: req.user.id,
-        },
+        packageId,
+        customerId: req.user.id,
       },
     });
 
@@ -37,17 +35,17 @@ const createReview = async (req, res, next) => {
       return res.status(409).json({ error: 'You have already reviewed this package' });
     }
 
-    // Check if user has a completed booking for this package
-    const completedBooking = await prisma.booking.findFirst({
+    // Check if user has an approved or completed booking for this package
+    const eligibleBooking = await prisma.booking.findFirst({
       where: {
         customerId: req.user.id,
         packageId,
-        status: 'completed',
+        status: { in: ['approved', 'completed'] },
       },
     });
 
-    if (!completedBooking) {
-      return res.status(403).json({ error: 'You can only review packages you have completed bookings for' });
+    if (!eligibleBooking) {
+      return res.status(403).json({ error: 'You can only review packages you have approved or completed bookings for' });
     }
 
     // Create review

@@ -23,14 +23,12 @@ const HomePage: React.FC = () => {
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
     const fetchPackages = async () => {
       try {
         setLoading(true);
-        const query = searchTerm ? `?search=${searchTerm}` : '';
-        const response = await fetch(`http://localhost:5000/api/packages${query}`);
+        const response = await fetch(`http://localhost:5000/api/packages?limit=6`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -44,7 +42,7 @@ const HomePage: React.FC = () => {
     };
 
     fetchPackages();
-  }, [searchTerm]);
+  }, []);
 
   if (loading) {
     return (
@@ -75,8 +73,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-light overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-primary opacity-5"></div>
+      <section className="relative bg-gray-50 overflow-hidden">
         <div className="relative container mx-auto px-4 py-20 lg:py-32">
           <div className="text-center max-w-4xl mx-auto animate-fade-in">
             <h1 className="hero-text mb-6 animate-slide-up">
@@ -88,7 +85,7 @@ const HomePage: React.FC = () => {
               Your journey to extraordinary experiences starts here.
             </p>
             <div className="mb-12 animate-slide-up" style={{ animationDelay: '0.4s' }}>
-              <SearchBar onSearch={setSearchTerm} />
+              <SearchBar />
             </div>
 
             {/* Stats */}
@@ -123,7 +120,7 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center animate-slide-in-left">
@@ -152,7 +149,7 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Packages Section */}
-      <section className="py-20 bg-gradient-light">
+      <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16 animate-fade-in">
             <h2 className="section-title">Explore Our Destinations</h2>
@@ -178,7 +175,7 @@ const HomePage: React.FC = () => {
                   {pkg.images && pkg.images.main && (
                     <div className="relative overflow-hidden rounded-t-xl">
                       <img
-                        src={pkg.images.main}
+                        src={`http://localhost:5000${pkg.images.main}`}
                         alt={pkg.title}
                         className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500"
                       />
@@ -222,11 +219,13 @@ const HomePage: React.FC = () => {
             </div>
           )}
 
-          {packages.length > 6 && (
+          {packages.length >= 6 && (
             <div className="text-center mt-12 animate-fade-in">
-              <button className="btn-secondary">
-                View All Destinations
-              </button>
+              <Link to="/packages">
+                <button className="btn-secondary">
+                  View All Destinations
+                </button>
+              </Link>
             </div>
           )}
         </div>

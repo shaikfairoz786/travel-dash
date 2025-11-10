@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 
 interface Package {
@@ -9,11 +10,14 @@ interface Package {
   price: number;
   currency: string;
   active: boolean;
+  images?: string[];
   createdAt: string;
 }
 
 const AdminPackagesPage: React.FC = () => {
-  const { accessToken } = useAuth();
+  const { session } = useAuth();
+  const navigate = useNavigate();
+  const accessToken = session?.access_token;
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +30,7 @@ const AdminPackagesPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/packages', {
+      const response = await fetch('http://localhost:5000/api/packages/admin/all', {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
         },
@@ -37,8 +41,8 @@ const AdminPackagesPage: React.FC = () => {
       }
       const data = await response.json();
       setPackages(data.packages);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -59,7 +63,7 @@ const AdminPackagesPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/packages/${packageId}`, {
+      const response = await fetch(`http://localhost:5000/api/packages/admin/${packageId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -73,8 +77,8 @@ const AdminPackagesPage: React.FC = () => {
 
       alert('Package deleted successfully!');
       fetchPackages(); // Refresh the list
-    } catch (err: any) {
-      alert(`Failed to delete package: ${err.message}`);
+    } catch (err: unknown) {
+      alert(`Failed to delete package: ${err instanceof Error ? err.message : 'An error occurred'}`);
     }
   };
 
@@ -85,7 +89,7 @@ const AdminPackagesPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/packages/${packageId}`, {
+      const response = await fetch(`http://localhost:5000/api/packages/admin/${packageId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -101,8 +105,8 @@ const AdminPackagesPage: React.FC = () => {
 
       alert('Package status updated successfully!');
       fetchPackages(); // Refresh the list
-    } catch (err: any) {
-      alert(`Failed to update package status: ${err.message}`);
+    } catch (err: unknown) {
+      alert(`Failed to update package status: ${err instanceof Error ? err.message : 'An error occurred'}`);
     }
   };
 
@@ -118,7 +122,12 @@ const AdminPackagesPage: React.FC = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">Manage Packages</h1>
       <div className="flex justify-end mb-6">
-        <button className="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 transition-colors duration-300 text-lg font-medium">Add New Package</button>
+        <button
+          onClick={() => navigate('/admin/packages/add')}
+          className="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 transition-colors duration-300 text-lg font-medium"
+        >
+          Add New Package
+        </button>
       </div>
       {packages.length === 0 ? (
         <p className="text-center text-gray-600 text-lg">No packages found.</p>
@@ -130,6 +139,7 @@ const AdminPackagesPage: React.FC = () => {
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Images</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Active</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
                 <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -141,6 +151,7 @@ const AdminPackagesPage: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{pkg.title}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{pkg.slug}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{pkg.currency} {pkg.price.toFixed(2)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{pkg.images ? pkg.images.length : 0}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${pkg.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                       {pkg.active ? 'Yes' : 'No'}
@@ -149,7 +160,12 @@ const AdminPackagesPage: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{new Date(pkg.createdAt).toLocaleDateString()}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-center space-x-2">
-                      <button className="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md transition duration-200">Edit</button>
+                      <button
+                        onClick={() => navigate(`/admin/packages/edit/${pkg.id}`)}
+                        className="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md transition duration-200"
+                      >
+                        Edit
+                      </button>
                       <button
                         onClick={() => handleToggleActive(pkg.id, pkg.active)}
                         className={`px-3 py-1 rounded-md text-xs transition duration-200 ${pkg.active ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' : 'bg-green-100 text-green-800 hover:bg-green-200'}`}

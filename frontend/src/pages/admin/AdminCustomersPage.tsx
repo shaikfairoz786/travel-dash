@@ -6,12 +6,15 @@ interface Customer {
   name: string;
   email: string;
   createdAt: string;
-  bookings: any[]; // TODO: Define proper Booking interface
-  reviews: any[]; // TODO: Define proper Review interface
+  _count: {
+    bookings: number;
+    reviews: number;
+  };
 }
 
 const AdminCustomersPage: React.FC = () => {
-  const { accessToken } = useAuth();
+  const { session } = useAuth();
+  const accessToken = session?.access_token;
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,8 +39,8 @@ const AdminCustomersPage: React.FC = () => {
         }
         const data = await response.json();
         setCustomers(data.customers);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);
       }
@@ -78,8 +81,8 @@ const AdminCustomersPage: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{customer.id}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{customer.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{customer.email}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{customer.bookings.length}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{customer.reviews.length}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{customer._count.bookings}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{customer._count.reviews}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{new Date(customer.createdAt).toLocaleDateString()}</td>
                 </tr>
               ))}

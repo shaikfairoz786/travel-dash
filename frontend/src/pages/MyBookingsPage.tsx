@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import useAuth from '../hooks/useAuth';
+import ReviewForm from '../components/ReviewForm';
 
 interface Booking {
   id: string;
-  package: { title: string; slug: string };
+  package: { title: string; slug: string; id: string };
   quantity: number;
   totalPrice: number;
   status: string;
@@ -14,10 +15,12 @@ interface Booking {
 }
 
 const MyBookingsPage: React.FC = () => {
-  const { accessToken } = useAuth();
+  const { session } = useAuth();
+  const accessToken = session?.access_token;
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [reviewPackageId, setReviewPackageId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMyBookings = async () => {
@@ -28,7 +31,7 @@ const MyBookingsPage: React.FC = () => {
           return;
         }
 
-        const response = await fetch('http://localhost:5000/api/bookings/mine', {
+        const response = await fetch('http://localhost:5000/api/bookings/my', {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
           },
@@ -39,8 +42,8 @@ const MyBookingsPage: React.FC = () => {
         }
         const data = await response.json();
         setBookings(data.bookings);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);
       }
@@ -74,8 +77,49 @@ const MyBookingsPage: React.FC = () => {
               {booking.travelStart && <p className="text-gray-600 text-sm mb-1">Travel Start: {new Date(booking.travelStart).toLocaleDateString()}</p>}
               {booking.travelEnd && <p className="text-gray-600 text-sm mb-1">Travel End: {new Date(booking.travelEnd).toLocaleDateString()}</p>}
               {booking.notes && <p className="text-gray-600 text-sm italic mt-2">Notes: {booking.notes}</p>}
+
+              {booking.status === 'approved' && booking.travelEnd && new Date(booking.travelEnd) < new Date() && (
+                <button
+                  onClick={() => setReviewPackageId(booking.package.id)}
+                  className="mt-4 w-full bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors duration-300 font-semibold text-sm"
+                >
+                  Write Review
+                </button>
+              )}
+              {booking.status === 'completed' && (
+                <button
+                  onClick={() => setReviewPackageId(booking.package.id)}
+                  className="mt-4 w-full bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors duration-300 font-semibold text-sm"
+                >
+                  Write Review
+                </button>
+              )}
             </div>
           ))}
+        </div>
+      )}
+
+      {reviewPackageId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-gray-800">Write a Review</h3>
+              <button
+                onClick={() => setReviewPackageId(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <ReviewForm
+              packageId={reviewPackageId}
+              packageName={bookings.find(b => b.package.id === reviewPackageId)?.package.title || ''}
+              onReviewSubmitted={() => setReviewPackageId(null)}
+              accessToken={accessToken || ''}
+            />
+          </div>
         </div>
       )}
     </div>
