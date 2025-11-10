@@ -8,12 +8,15 @@
     "dev": "node server.js",
     "build": "echo 'No build step required'",
     "prisma.seed": "node prisma/seed.js",
-    "postinstall": "chmod +x ./node_modules/.bin/prisma && npx prisma generate"
+    "postinstall": "npx prisma generate"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
+  "engines": {
+    "node": "20"
+  },
   "dependencies": {
     "@prisma/client": "^6.18.0",
     "@supabase/supabase-js": "^2.76.1",
