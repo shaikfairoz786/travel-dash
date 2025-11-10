@@ -7,7 +7,8 @@
     "start": "node server.js",
     "dev": "node server.js",
     "build": "echo 'No build step required'",
-    "prisma.seed": "node prisma/seed.js"
+    "prisma.seed": "node prisma/seed.js",
+    "postinstall": "chmod +x node_modules/.bin/prisma && npx prisma generate"
   },
   "keywords": [],
   "author": "",
