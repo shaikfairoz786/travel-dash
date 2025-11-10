@@ -4,15 +4,13 @@
   "description": "Travel Dash backend (Render-compatible Prisma setup)",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node server.js",
-    "start": "npx prisma generate && npx prisma migrate deploy && node server.js",
-    "build": "echo 'No build step required'",
-    "prisma.seed": "node prisma/seed.js",
-    "postinstall": "echo 'Skipping Prisma generate during Render build'",
-    "rebuild": "rm -rf node_modules && npm cache clean --force && npm install"
-
-  },
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "dev": "node server.js",
+  "start": "npx prisma generate && npx prisma migrate deploy && node server.js",
+  "build": "echo 'No build step required'",
+  "prisma.seed": "node prisma/seed.js",
+  "postinstall": "npm rebuild express --force && echo '✅ Express rebuilt successfully'"
+ },
   "engines": {
     "node": "20.x"
   },
