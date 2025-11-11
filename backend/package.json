@@ -6,7 +6,7 @@
  "scripts": {
   "test": "echo \"Error: no test specified\" && exit 1",
   "dev": "node server.js",
-  "start": "npm rebuild express --force && npx prisma generate && npx prisma migrate deploy && node server.js",
+  "start": "npm rebuild express --force && npx prisma generate && npx prisma migrate deploy && npx prisma db seed && node server.js",
   "build": "echo 'No build step required'",
   "prisma.seed": "node prisma/seed.js",
   "postinstall": "npm rebuild express --force && echo '✅ Express rebuilt after install'"
