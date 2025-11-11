@@ -6,9 +6,9 @@
  "scripts": {
   "test": "echo \"Error: no test specified\" && exit 1",
   "dev": "node server.js",
-  "start": "npm rebuild express --force && node server.js",
   "build": "echo 'No build step required'",
-  "postinstall": "npm rebuild express --force && npx prisma generate && npx prisma migrate deploy && npx prisma db seed && echo '✅ Prisma and Express setup complete!'"
+  "start": "npm rebuild express --force && npx prisma generate && node server.js",
+  "postinstall": "npm rebuild express --force && echo '✅ Express rebuilt after install'"
 },
   "engines": {
     "node": "20.x"
