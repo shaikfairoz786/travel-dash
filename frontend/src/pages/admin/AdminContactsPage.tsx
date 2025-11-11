@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import useAuth from '../../hooks/useAuth';
+import { API_BASE_URL } from "../../config/api";
 
 interface Contact {
   id: string;
@@ -20,7 +21,7 @@ const AdminContactsPage: React.FC = () => {
 
   const fetchContacts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/contacts', {
+      const response = await fetch(`${API_BASE_URL}/api/contacts`, {
         headers: {
           'Authorization': `Bearer ${session?.access_token}`,
         },
@@ -43,7 +44,7 @@ const AdminContactsPage: React.FC = () => {
 
   const updateContactStatus = async (contactId: string, status: 'unread' | 'read' | 'replied') => {
     try {
-      const response = await fetch(`http://localhost:5000/api/contacts/${contactId}/status`, {
+      const response = await fetch(`${API_BASE_URL}/api/contacts/${contactId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -66,7 +67,7 @@ const AdminContactsPage: React.FC = () => {
     if (!confirm('Are you sure you want to delete this contact?')) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/contacts/${contactId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/contacts/${contactId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${session?.access_token}`,

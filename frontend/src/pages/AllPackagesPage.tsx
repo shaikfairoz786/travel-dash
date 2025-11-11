@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPinIcon, StarIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
+import { API_BASE_URL } from "../config/api";
+
 
 interface Package {
   id: string;
@@ -88,7 +90,7 @@ const AllPackagesPage: React.FC = () => {
         params.append('sortBy', filters.sortBy);
       }
 
-      const response = await fetch(`http://localhost:5000/api/packages?${params.toString()}`);
+      const response = await fetch(`${API_BASE_URL}/api/packages?${params.toString()}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -435,7 +437,7 @@ const AllPackagesPage: React.FC = () => {
                 {pkg.images && pkg.images.main && (
                   <div className="relative overflow-hidden">
                     <img
-                      src={`http://localhost:5000${pkg.images.main}`}
+                      src={`${API_BASE_URL}${pkg.images.main}`}
                       alt={pkg.title}
                       className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-700"
                       onError={(e) => {

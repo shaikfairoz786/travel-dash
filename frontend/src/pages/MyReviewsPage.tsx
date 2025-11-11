@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { StarIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
+import { API_BASE_URL } from "../config/api";
+
 
 interface Review {
   id: string;
@@ -40,7 +42,7 @@ const MyReviewsPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`http://localhost:5000/api/reviews/user/my?page=${page}&limit=10`, {
+      const response = await fetch(`${API_BASE_URL}/api/reviews/user/my?page=${page}&limit=10`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
         },
@@ -71,7 +73,7 @@ const MyReviewsPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/reviews/${reviewId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/reviews/${reviewId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
@@ -116,7 +118,7 @@ const MyReviewsPage: React.FC = () => {
     setUpdating(true);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/reviews/${reviewId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/reviews/${reviewId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -311,7 +313,7 @@ const MyReviewsPage: React.FC = () => {
                           {review.package.images?.main && (
                             <div className="flex-shrink-0">
                               <img
-                                src={`http://localhost:5000${review.package.images.main}`}
+                                src={`${API_BASE_URL}${review.package.images.main}`}
                                 alt={review.package.title}
                                 className="w-20 h-20 object-cover rounded-lg"
                                 onError={(e) => {

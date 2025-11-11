@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE_URL } from "../config/api"; // ✅ import the config file
 
 interface BookingModalProps {
   packageId: string;
@@ -37,12 +38,12 @@ const BookingModal: React.FC<BookingModalProps> = ({ packageId, packageName, pri
         travelEnd,
       };
 
-      // Only include notes if it's not empty
       if (notes.trim()) {
         bookingData.notes = notes.trim();
       }
 
-      const response = await fetch('http://localhost:5000/api/bookings', {
+      // ✅ Updated API endpoint with dynamic base URL
+      const response = await fetch(`${API_BASE_URL}/api/bookings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,6 +84,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ packageId, packageName, pri
               required
             />
           </div>
+
           <div className="mb-4">
             <label htmlFor="travelStart" className="block text-gray-700 text-sm font-semibold mb-2">Travel Start Date:</label>
             <input
@@ -94,6 +96,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ packageId, packageName, pri
               required
             />
           </div>
+
           <div className="mb-4">
             <label htmlFor="travelEnd" className="block text-gray-700 text-sm font-semibold mb-2">Travel End Date:</label>
             <input
@@ -105,6 +108,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ packageId, packageName, pri
               required
             />
           </div>
+
           <div className="mb-6">
             <label htmlFor="notes" className="block text-gray-700 text-sm font-semibold mb-2">Notes (optional):</label>
             <textarea
@@ -116,14 +120,19 @@ const BookingModal: React.FC<BookingModalProps> = ({ packageId, packageName, pri
               placeholder="Any special requests or information?"
             ></textarea>
           </div>
+
           <div className="mb-8 text-center">
-            <p className="text-2xl font-bold text-gray-800">Total Price: <span className="text-primary-600">${totalPrice.toFixed(2)}</span></p>
+            <p className="text-2xl font-bold text-gray-800">
+              Total Price: <span className="text-primary-600">${totalPrice.toFixed(2)}</span>
+            </p>
           </div>
+
           {error && (
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
               {error}
             </div>
           )}
+
           <div className="flex justify-end space-x-4">
             <button
               type="button"

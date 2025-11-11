@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
+import { API_BASE_URL } from "../../config/api";
 
 interface Package {
   id: string;
@@ -30,7 +31,7 @@ const AdminPackagesPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/packages/admin/all', {
+      const response = await fetch(`${API_BASE_URL}/api/packages/admin/all`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
         },
@@ -63,7 +64,7 @@ const AdminPackagesPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/packages/admin/${packageId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/packages/admin/${packageId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -89,7 +90,7 @@ const AdminPackagesPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/packages/admin/${packageId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/packages/admin/${packageId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

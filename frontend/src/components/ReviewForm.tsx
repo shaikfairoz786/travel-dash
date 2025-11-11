@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { StarIcon } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
+import { API_BASE_URL } from "../config/api";
+
 
 interface ReviewFormProps {
   packageId: string;
@@ -33,7 +35,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ packageId, packageName, onRevie
     setError(null);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/packages/${packageId}/reviews`, {
+      const response = await fetch(`${API_BASE_URL}/api/packages/${packageId}/reviews`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

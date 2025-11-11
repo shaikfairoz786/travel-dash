@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE_URL } from "../config/api"; // ✅ Import config file
 
 const ContactPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -19,7 +20,8 @@ const ContactPage: React.FC = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:5000/api/contacts', {
+      // ✅ Updated API call with dynamic base URL
+      const response = await fetch(`${API_BASE_URL}/api/contacts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -31,7 +33,6 @@ const ContactPage: React.FC = () => {
 
       if (result.success) {
         alert('Thank you for your message! We will get back to you soon.');
-        // Reset form
         setFormData({
           name: '',
           email: '',

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import useAuth from '../hooks/useAuth';
 import ReviewForm from '../components/ReviewForm';
+import { API_BASE_URL } from "../config/api";
+
 
 interface Booking {
   id: string;
@@ -31,7 +33,7 @@ const MyBookingsPage: React.FC = () => {
           return;
         }
 
-        const response = await fetch('http://localhost:5000/api/bookings/my', {
+        const response = await fetch(`${API_BASE_URL}/api/bookings/my`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
           },

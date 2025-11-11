@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
+import { API_BASE_URL } from "../../config/api";
 
 interface Package {
   id: string;
@@ -50,7 +51,7 @@ const EditPackagePage: React.FC = () => {
     exclusions: '',
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+ /* eslint-disable-next-line @typescript-eslint/no-unused-vars*/
   const [mainImage, setMainImage] = useState<File | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [galleryImages, setGalleryImages] = useState<File[]>([]);
@@ -71,7 +72,7 @@ const EditPackagePage: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/packages/admin/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/packages/admin/${id}`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
         },
@@ -178,7 +179,7 @@ const EditPackagePage: React.FC = () => {
 
       console.log('FormData being sent:', formDataToSend);
 
-      const response = await fetch(`http://localhost:5000/api/packages/admin/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/packages/admin/${id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${accessToken}`,

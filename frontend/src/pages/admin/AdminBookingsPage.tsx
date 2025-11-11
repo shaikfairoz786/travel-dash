@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import useAuth from '../../hooks/useAuth';
+import { API_BASE_URL } from "../../config/api";
 
 interface Booking {
   id: string;
@@ -29,7 +30,7 @@ const AdminBookingsPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/bookings', {
+      const response = await fetch(`${API_BASE_URL}/api/bookings`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
         },
@@ -58,7 +59,7 @@ const AdminBookingsPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/bookings/${bookingId}/status`, {
+      const response = await fetch(`${API_BASE_URL}/api/bookings/${bookingId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

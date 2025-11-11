@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
+import { API_BASE_URL } from "../../config/api";
+
 
 const AddPackagePage: React.FC = () => {
   const { session } = useAuth();
@@ -96,7 +98,7 @@ const AddPackagePage: React.FC = () => {
 
       console.log('FormData being sent:', formDataToSend);
 
-      const response = await fetch('http://localhost:5000/api/packages', {
+      const response = await fetch(`${API_BASE_URL}/api/packages`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,

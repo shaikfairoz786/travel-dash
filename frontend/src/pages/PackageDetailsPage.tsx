@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import BookingModal from '../components/BookingModal';
 import useAuth from '../hooks/useAuth';
+import { API_BASE_URL } from "../config/api";
+
 
 interface Package {
   id: string;
@@ -49,7 +51,7 @@ const PackageDetailsPage: React.FC = () => {
     const fetchPackage = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:5000/api/packages/${slug}`);
+        const response = await fetch(`${API_BASE_URL}/api/packages/${slug}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -97,7 +99,7 @@ const PackageDetailsPage: React.FC = () => {
           <h1 className="text-4xl font-bold text-gray-800 mb-4">{packageData.title}</h1>
           {packageData.images && packageData.images.main && (
             <div className="relative">
-              <img src={`http://localhost:5000${packageData.images.main}`} alt={packageData.title} className="w-full h-96 object-cover rounded-xl mb-6" />
+              <img src={`${API_BASE_URL}${packageData.images.main}`} alt={packageData.title} className="w-full h-96 object-cover rounded-xl mb-6" />
               {packageData.averageRating && packageData.averageRating > 0 && (
                 <div className="absolute bottom-4 left-4 bg-white bg-opacity-95 backdrop-blur-sm px-3 py-2 rounded-full flex items-center shadow-lg">
                   <svg className="w-5 h-5 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -116,7 +118,7 @@ const PackageDetailsPage: React.FC = () => {
               {packageData.images.gallery.map((image: string, index: number) => (
                 <img
                   key={index}
-                  src={`http://localhost:5000${image}`}
+                  src={`${API_BASE_URL}${image}`}
                   alt={`${packageData.title} ${index + 1}`}
                   className="w-full h-48 object-cover rounded-lg"
                 />

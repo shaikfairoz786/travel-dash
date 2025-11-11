@@ -1,6 +1,7 @@
  import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import useAuth from '../../hooks/useAuth';
+import { API_BASE_URL } from "../../config/api";
 
 interface MetricsOverview {
   totalRevenue: number;
@@ -54,12 +55,12 @@ const AdminDashboardPage: React.FC = () => {
       console.log('Using token for request:', token.substring(0, 50) + '...');
 
       try {
-        const overviewResponse = await fetch('http://localhost:5000/api/admin/dashboard/overview', {
+        const overviewResponse = await fetch(`${API_BASE_URL}/api/admin/dashboard/overview`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
         });
-        const trendsResponse = await fetch('http://localhost:5000/api/admin/dashboard/trends', {
+        const trendsResponse = await fetch(`${API_BASE_URL}/api/admin/dashboard/trends`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },

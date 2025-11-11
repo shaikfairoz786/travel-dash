@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import useAuth from '../../hooks/useAuth';
+import { API_BASE_URL } from "../../config/api";
 
 interface Customer {
   id: string;
@@ -28,7 +29,7 @@ const AdminCustomersPage: React.FC = () => {
       }
 
       try {
-        const response = await fetch('http://localhost:5000/api/admin/customers', {
+        const response = await fetch(`${API_BASE_URL}/api/admin/customers`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
           },
