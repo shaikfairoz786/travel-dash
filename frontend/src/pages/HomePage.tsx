@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   MapPinIcon,
   StarIcon,
   GlobeAltIcon,
   ClockIcon,
-  ShieldCheckIcon
-} from '@heroicons/react/24/outline';
-import SearchBar from '../components/SearchBar';
-import WhyChooseUs from '../components/WhyChooseUs';
-import WhatOurTravelersSay from '../components/WhatOurTravelersSay';
+  ShieldCheckIcon,
+} from "@heroicons/react/24/outline";
+import SearchBar from "../components/SearchBar";
+import WhyChooseUs from "../components/WhyChooseUs";
+import WhatOurTravelersSay from "../components/WhatOurTravelersSay";
+import { API_BASE_URL } from "../config/api";
 
 interface Package {
   id: string;
@@ -30,10 +31,6 @@ const HomePage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ✅ Define base URL dynamically
-  const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-
   useEffect(() => {
     const fetchPackages = async () => {
       try {
@@ -45,14 +42,14 @@ const HomePage: React.FC = () => {
         const data = await response.json();
         setPackages(data.packages);
       } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         setLoading(false);
       }
     };
 
     fetchPackages();
-  }, [API_BASE_URL]);
+  }, []);
 
   if (loading) {
     return (
@@ -100,34 +97,27 @@ const HomePage: React.FC = () => {
             </h1>
             <p
               className="text-xl text-secondary-600 mb-10 leading-relaxed animate-slide-up"
-              style={{ animationDelay: '0.2s' }}
+              style={{ animationDelay: "0.2s" }}
             >
               Explore breathtaking destinations and create unforgettable
               memories with our curated travel packages. Your journey to
               extraordinary experiences starts here.
             </p>
-            <div
-              className="mb-12 animate-slide-up"
-              style={{ animationDelay: '0.4s' }}
-            >
+            <div className="mb-12 animate-slide-up" style={{ animationDelay: "0.4s" }}>
               <SearchBar />
             </div>
 
             {/* Stats */}
             <div
               className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 animate-slide-up"
-              style={{ animationDelay: '0.6s' }}
+              style={{ animationDelay: "0.6s" }}
             >
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary-600 mb-2">
-                  500+
-                </div>
+                <div className="text-3xl font-bold text-primary-600 mb-2">500+</div>
                 <div className="text-secondary-600 font-medium">Destinations</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary-600 mb-2">
-                  10K+
-                </div>
+                <div className="text-3xl font-bold text-primary-600 mb-2">10K+</div>
                 <div className="text-secondary-600 font-medium">Happy Travelers</div>
               </div>
               <div className="text-center">
@@ -148,7 +138,7 @@ const HomePage: React.FC = () => {
         </div>
         <div
           className="absolute bottom-20 right-10 animate-float"
-          style={{ animationDelay: '1s' }}
+          style={{ animationDelay: "1s" }}
         >
           <MapPinIcon className="h-12 w-12 text-accent-300" />
         </div>
@@ -170,16 +160,11 @@ const HomePage: React.FC = () => {
                 transactions.
               </p>
             </div>
-            <div
-              className="text-center animate-fade-in"
-              style={{ animationDelay: '0.2s' }}
-            >
+            <div className="text-center animate-fade-in" style={{ animationDelay: "0.2s" }}>
               <div className="bg-gradient-light rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
                 <ClockIcon className="h-10 w-10 text-primary-600" />
               </div>
-              <h3 className="text-xl font-bold text-secondary-900 mb-3">
-                24/7 Support
-              </h3>
+              <h3 className="text-xl font-bold text-secondary-900 mb-3">24/7 Support</h3>
               <p className="text-secondary-600">
                 Round-the-clock customer support for all your travel needs and
                 emergencies.
@@ -245,7 +230,8 @@ const HomePage: React.FC = () => {
                         <div className="absolute bottom-4 left-4 bg-white bg-opacity-90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center shadow-soft">
                           <StarIcon className="h-4 w-4 text-accent-500 mr-1" />
                           <span className="text-sm font-semibold text-secondary-900">
-                            {pkg.averageRating.toFixed(1)} ({pkg.reviewCount || 0})
+                            {pkg.averageRating.toFixed(1)} (
+                            {pkg.reviewCount || 0})
                           </span>
                         </div>
                       )}
