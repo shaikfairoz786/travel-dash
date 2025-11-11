@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from "../config/api"; // ✅ Added this line
 
 interface User {
   id: string;
@@ -30,7 +31,6 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
-    // Initialize user synchronously from localStorage
     const storedUser = localStorage.getItem(USER_KEY);
     if (storedUser) {
       try {
@@ -44,41 +44,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   });
 
   const [session, setSession] = useState<{ access_token: string } | null>(() => {
-    // Initialize session synchronously from localStorage
     const storedToken = localStorage.getItem(TOKEN_KEY);
-    if (storedToken) {
-      return { access_token: storedToken };
-    }
-    return null;
+    return storedToken ? { access_token: storedToken } : null;
   });
 
   const navigate = useNavigate();
-
   const isAuthenticated = !!user;
   const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
-    // Check if token is still valid on app start
     const token = localStorage.getItem(TOKEN_KEY);
     if (token && user) {
-      // Optionally validate token with backend
       fetchUserProfile(token);
     }
   }, []);
 
   const fetchUserProfile = async (token: string) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/profile', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+      const response = await fetch(`${API_BASE_URL}/api/auth/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
       } else {
-        // Token invalid, clear storage
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(USER_KEY);
         setUser(null);
@@ -93,30 +83,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
       if (response.ok) {
         const data = await response.json();
 
-        // Store authentication data
         localStorage.setItem(TOKEN_KEY, data.accessToken);
         localStorage.setItem(USER_KEY, JSON.stringify(data.user));
 
         setUser(data.user);
         setSession({ access_token: data.accessToken });
 
-        // Navigate based on user role
-        if (data.user.role === 'admin') {
-          navigate('/admin/dashboard');
-        } else {
-          navigate('/');
-        }
+        navigate(data.user.role === 'admin' ? '/admin/dashboard' : '/');
         return true;
       } else {
         const errorData = await response.json();
@@ -132,11 +114,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (name: string, email: string, phone: string, password: string) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, phone, password }),
       });
 
@@ -158,10 +138,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      // Clear authentication from localStorage
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
-
       setUser(null);
       setSession(null);
       navigate('/login');

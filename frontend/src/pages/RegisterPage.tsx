@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { EyeIcon, EyeSlashIcon, UserPlusIcon, ArrowRightIcon, CheckIcon } from '@heroicons/react/24/outline';
 import useAuth from '../hooks/useAuth';
 
+
+
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
