@@ -1,21 +1,31 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+
+// Use /tmp for production (Railway, Vercel) because their FS is read-only
+const UPLOAD_DIR =
+  process.env.NODE_ENV === 'production'
+    ? '/tmp/uploads'
+    : path.join(__dirname, '../../public/uploads');
+
+// Ensure the upload folder exists (locally and in /tmp)
+if (!fs.existsSync(UPLOAD_DIR)) {
+  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+}
 
 // Configure storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, '../../public/uploads'));
+    cb(null, UPLOAD_DIR);
   },
   filename: function (req, file, cb) {
-    // Generate unique filename with timestamp
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
+  },
 });
 
-// File filter
+// File filter (images only)
 const fileFilter = (req, file, cb) => {
-  // Accept images only
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
   } else {
@@ -25,18 +35,16 @@ const fileFilter = (req, file, cb) => {
 
 // Configure multer
 const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
-  }
+  storage,
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
 });
 
-// Export upload middleware for multiple files
+// Export upload middleware
 module.exports = {
   uploadImages: upload.fields([
     { name: 'mainImage', maxCount: 1 },
-    { name: 'galleryImages', maxCount: 10 }
+    { name: 'galleryImages', maxCount: 10 },
   ]),
-  upload
+  upload,
 };
