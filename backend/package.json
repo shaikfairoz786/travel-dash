@@ -7,7 +7,7 @@
     "dev": "node server.js",
     "start": "npx prisma generate && node server.js",
     "build": "echo 'No build step required'",
-    "postinstall": "npx prisma generate && echo '✅ Prisma client generated!'",
+    "postinstall": "npx --yes prisma generate || (chmod +x ./node_modules/.bin/prisma && npx prisma generate) && echo '✅ Prisma client generated!'",
     "migrate": "npx prisma migrate deploy && npx prisma db seed && echo '✅ Prisma migration complete!'",
     "seed": "npx prisma generate && npx prisma migrate deploy && npx prisma db seed"
   },
