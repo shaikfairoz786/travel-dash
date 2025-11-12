@@ -17,7 +17,7 @@ const GlobalNavbar: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           <Link to="/" className="flex items-center space-x-3 text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent hover:scale-105 transition-transform duration-300">
-            <img src="https://drive.google.com/file/d/1ko-2vOh8nnBbplob2HNYsXqrIC4gVcRp/view?usp=drive_link" alt="Travores Logo" className="h-14 w-14 rounded-full object-cover" />
+            <img src="https://iili.io/KpvYQnI.md.jpg" alt="Travores Logo" className="h-14 w-14 rounded-full object-cover" />
             <span>Travores</span>
           </Link>
 
