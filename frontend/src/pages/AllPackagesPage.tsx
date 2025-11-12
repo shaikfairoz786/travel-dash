@@ -32,6 +32,7 @@ interface Package {
   duration?: string;
   location?: string;
   difficulty?: string;
+  highlights?: string[];
   createdAt?: string;
 }
 
