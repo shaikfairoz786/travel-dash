@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import BookingModal from "../components/BookingModal";
 import useAuth from "../hooks/useAuth";
 import { API_BASE_URL } from "../config/api";
-import placeholder from "/default-placeholder.jpg"; // ✅ correct import — works both local & deployed
+import placeholder from "/default-placeholder.jpg"; // ✅ always available
 
 interface Package {
   id: string;
@@ -45,6 +45,17 @@ const PackageDetailsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
+  // ✅ Unified Image Resolver
+  const getImageUrl = (url?: string): string => {
+    if (!url) return placeholder;
+    if (url.startsWith("http")) return url;
+
+    const cleanBase = API_BASE_URL.replace(/\/$/, "");
+    const cleanUrl = url.replace(/^\/+/, "");
+
+    return `${cleanBase}/${cleanUrl}`;
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
 
@@ -66,13 +77,6 @@ const PackageDetailsPage: React.FC = () => {
   }, [slug]);
 
   const handleBookingSuccess = () => setIsBookingModalOpen(false);
-
-  /** ✅ Safe image resolver — handles local, remote, and missing paths */
-  const getImageUrl = (url?: string) => {
-    if (!url) return placeholder;
-    if (url.startsWith("http")) return url;
-    return `${API_BASE_URL}${url}`;
-  };
 
   if (loading) {
     return (
@@ -120,8 +124,11 @@ const PackageDetailsPage: React.FC = () => {
                 alt={packageData.title}
                 className="w-full h-96 object-cover rounded-xl mb-6"
                 onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  if (target.src !== placeholder) target.src = placeholder;
+                  const target = e.currentTarget as HTMLImageElement;
+                  if (!target.dataset.fallback) {
+                    target.src = placeholder;
+                    target.dataset.fallback = "true";
+                  }
                 }}
               />
               {packageData.averageRating && (
@@ -151,8 +158,11 @@ const PackageDetailsPage: React.FC = () => {
                     alt={`${packageData.title} ${index + 1}`}
                     className="w-full h-48 object-cover rounded-lg shadow-sm hover:scale-105 transition-transform duration-300"
                     onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      if (target.src !== placeholder) target.src = placeholder;
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (!target.dataset.fallback) {
+                        target.src = placeholder;
+                        target.dataset.fallback = "true";
+                      }
                     }}
                   />
                 ))}
