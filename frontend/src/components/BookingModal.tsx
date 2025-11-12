@@ -12,7 +12,7 @@ interface BookingModalProps {
 const BookingModal: React.FC<BookingModalProps> = ({ packageId, packageName, price, onClose, onBook }) => {
   const [quantity, setQuantity] = useState(1);
   const [travelStart, setTravelStart] = useState('');
-  const [travelEnd, setTravelEnd] = useState('');
+  // const [travelEnd, setTravelEnd] = useState('');
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,13 +29,13 @@ const BookingModal: React.FC<BookingModalProps> = ({ packageId, packageName, pri
         packageId: string;
         quantity: number;
         travelStart: string;
-        travelEnd: string;
+        // travelEnd: string;
         notes?: string;
       } = {
         packageId,
         quantity,
         travelStart,
-        travelEnd,
+        // travelEnd,
       };
 
       if (notes.trim()) {
@@ -97,7 +97,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ packageId, packageName, pri
             />
           </div>
 
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <label htmlFor="travelEnd" className="block text-gray-700 text-sm font-semibold mb-2">Travel End Date:</label>
             <input
               type="date"
@@ -107,7 +107,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ packageId, packageName, pri
               className="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200"
               required
             />
-          </div>
+          </div> */}
 
           <div className="mb-6">
             <label htmlFor="notes" className="block text-gray-700 text-sm font-semibold mb-2">Notes (optional):</label>
