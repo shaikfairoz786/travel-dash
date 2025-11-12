@@ -28,20 +28,25 @@ interface Package {
 
 const HomePage: React.FC = () => {
   const [packages, setPackages] = useState<Package[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const getImageUrl = (url?: string) =>
+    url
+      ? url.startsWith("http")
+        ? url
+        : `${API_BASE_URL}${url}`
+      : "/default-placeholder.jpg";
 
   useEffect(() => {
     const fetchPackages = async () => {
       try {
         setLoading(true);
         const response = await fetch(`${API_BASE_URL}/api/packages?limit=6`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        setPackages(data.packages);
-      } catch (err: unknown) {
+        setPackages(data.packages || []);
+      } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         setLoading(false);
@@ -75,7 +80,10 @@ const HomePage: React.FC = () => {
           <p className="text-secondary-600 mb-6">
             We're working to fix this. Please try again later.
           </p>
-          <button className="btn-primary" onClick={() => window.location.reload()}>
+          <button
+            className="btn-primary"
+            onClick={() => window.location.reload()}
+          >
             Try Again
           </button>
         </div>
@@ -103,7 +111,10 @@ const HomePage: React.FC = () => {
               memories with our curated travel packages. Your journey to
               extraordinary experiences starts here.
             </p>
-            <div className="mb-12 animate-slide-up" style={{ animationDelay: "0.4s" }}>
+            <div
+              className="mb-12 animate-slide-up"
+              style={{ animationDelay: "0.4s" }}
+            >
               <SearchBar />
             </div>
 
@@ -112,22 +123,10 @@ const HomePage: React.FC = () => {
               className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 animate-slide-up"
               style={{ animationDelay: "0.6s" }}
             >
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary-600 mb-2">500+</div>
-                <div className="text-secondary-600 font-medium">Destinations</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary-600 mb-2">10K+</div>
-                <div className="text-secondary-600 font-medium">Happy Travelers</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary-600 mb-2">4.9</div>
-                <div className="text-secondary-600 font-medium">Average Rating</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary-600 mb-2">24/7</div>
-                <div className="text-secondary-600 font-medium">Support</div>
-              </div>
+              <StatCard number="500+" label="Destinations" />
+              <StatCard number="10K+" label="Happy Travelers" />
+              <StatCard number="4.9" label="Average Rating" />
+              <StatCard number="24/7" label="Support" />
             </div>
           </div>
         </div>
@@ -148,40 +147,24 @@ const HomePage: React.FC = () => {
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center animate-slide-in-left">
-              <div className="bg-gradient-light rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-                <ShieldCheckIcon className="h-10 w-10 text-primary-600" />
-              </div>
-              <h3 className="text-xl font-bold text-secondary-900 mb-3">
-                Secure Bookings
-              </h3>
-              <p className="text-secondary-600">
-                Your safety and security are our top priorities with encrypted
-                transactions.
-              </p>
-            </div>
-            <div className="text-center animate-fade-in" style={{ animationDelay: "0.2s" }}>
-              <div className="bg-gradient-light rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-                <ClockIcon className="h-10 w-10 text-primary-600" />
-              </div>
-              <h3 className="text-xl font-bold text-secondary-900 mb-3">24/7 Support</h3>
-              <p className="text-secondary-600">
-                Round-the-clock customer support for all your travel needs and
-                emergencies.
-              </p>
-            </div>
-            <div className="text-center animate-slide-in-right">
-              <div className="bg-gradient-light rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-                <StarIcon className="h-10 w-10 text-primary-600" />
-              </div>
-              <h3 className="text-xl font-bold text-secondary-900 mb-3">
-                Best Experiences
-              </h3>
-              <p className="text-secondary-600">
-                Curated experiences and packages designed for unforgettable
-                adventures.
-              </p>
-            </div>
+            <FeatureCard
+              icon={<ShieldCheckIcon className="h-10 w-10 text-primary-600" />}
+              title="Secure Bookings"
+              desc="Your safety and security are our top priorities with encrypted transactions."
+              animation="animate-slide-in-left"
+            />
+            <FeatureCard
+              icon={<ClockIcon className="h-10 w-10 text-primary-600" />}
+              title="24/7 Support"
+              desc="Round-the-clock customer support for all your travel needs and emergencies."
+              animation="animate-fade-in"
+            />
+            <FeatureCard
+              icon={<StarIcon className="h-10 w-10 text-primary-600" />}
+              title="Best Experiences"
+              desc="Curated experiences and packages designed for unforgettable adventures."
+              animation="animate-slide-in-right"
+            />
           </div>
         </div>
       </section>
@@ -216,27 +199,29 @@ const HomePage: React.FC = () => {
                   className="card group animate-slide-up"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  {pkg.images && pkg.images.main && (
-                    <div className="relative overflow-hidden rounded-t-xl">
-                      <img
-                        src={`${API_BASE_URL}${pkg.images.main}`}
-                        alt={pkg.title}
-                        className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      <div className="absolute top-4 right-4 bg-gradient-primary text-white px-3 py-1 rounded-full text-sm font-semibold shadow-soft">
-                        Featured
-                      </div>
-                      {pkg.averageRating && (
-                        <div className="absolute bottom-4 left-4 bg-white bg-opacity-90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center shadow-soft">
-                          <StarIcon className="h-4 w-4 text-accent-500 mr-1" />
-                          <span className="text-sm font-semibold text-secondary-900">
-                            {pkg.averageRating.toFixed(1)} (
-                            {pkg.reviewCount || 0})
-                          </span>
-                        </div>
-                      )}
+                  <div className="relative overflow-hidden rounded-t-xl">
+                    <img
+                      src={getImageUrl(pkg.images?.main)}
+                      alt={pkg.title}
+                      onError={(e) =>
+                        ((e.target as HTMLImageElement).src =
+                          "/default-placeholder.jpg")
+                      }
+                      className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute top-4 right-4 bg-gradient-primary text-white px-3 py-1 rounded-full text-sm font-semibold shadow-soft">
+                      Featured
                     </div>
-                  )}
+                    {pkg.averageRating && (
+                      <div className="absolute bottom-4 left-4 bg-white bg-opacity-90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center shadow-soft">
+                        <StarIcon className="h-4 w-4 text-accent-500 mr-1" />
+                        <span className="text-sm font-semibold text-secondary-900">
+                          {pkg.averageRating.toFixed(1)} ({pkg.reviewCount || 0})
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="p-6">
                     <div className="flex items-center mb-3">
                       <MapPinIcon className="h-5 w-5 text-primary-600 mr-2" />
@@ -281,3 +266,30 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
+
+/* ===== Helper Components ===== */
+
+const StatCard: React.FC<{ number: string; label: string }> = ({
+  number,
+  label,
+}) => (
+  <div className="text-center">
+    <div className="text-3xl font-bold text-primary-600 mb-2">{number}</div>
+    <div className="text-secondary-600 font-medium">{label}</div>
+  </div>
+);
+
+const FeatureCard: React.FC<{
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+  animation: string;
+}> = ({ icon, title, desc, animation }) => (
+  <div className={`text-center ${animation}`}>
+    <div className="bg-gradient-light rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+      {icon}
+    </div>
+    <h3 className="text-xl font-bold text-secondary-900 mb-3">{title}</h3>
+    <p className="text-secondary-600">{desc}</p>
+  </div>
+);
