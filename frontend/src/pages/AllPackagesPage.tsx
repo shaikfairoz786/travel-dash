@@ -3,6 +3,19 @@ import { Link } from 'react-router-dom';
 import { MapPinIcon, StarIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
 import { API_BASE_URL } from "../config/api";
 
+const placeholder = "/default-placeholder.jpg";
+
+// ✅ Safe image URL generator
+const getImageUrl = (url?: string): string => {
+  if (!url) return placeholder;
+  if (url.startsWith("http")) return url;
+
+  const cleanBase = API_BASE_URL.replace(/\/$/, "");
+  const cleanUrl = url.replace(/^\/+/, "");
+
+  return `${cleanBase}/${cleanUrl}`;
+};
+
 
 interface Package {
   id: string;
@@ -437,12 +450,15 @@ const AllPackagesPage: React.FC = () => {
                 {pkg.images && pkg.images.main && (
                   <div className="relative overflow-hidden">
                     <img
-                      src={`${API_BASE_URL}${pkg.images.main}`}
+                      src={getImageUrl(pkg.images?.main)}
                       alt={pkg.title}
                       className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-700"
                       onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/placeholder-image.jpg'; // Fallback image
+                        const target = e.currentTarget as HTMLImageElement;
+                        if (!target.dataset.fallback) {
+                          target.src = '/default-placeholder.jpg';
+                          target.dataset.fallback = "true";
+                        }
                       }}
                     />
                     <div className="absolute top-4 right-4 bg-gradient-to-r from-primary-600 to-accent-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
