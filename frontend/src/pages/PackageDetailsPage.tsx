@@ -3,7 +3,8 @@ import { useParams } from "react-router-dom";
 import BookingModal from "../components/BookingModal";
 import useAuth from "../hooks/useAuth";
 import { API_BASE_URL } from "../config/api";
-import placeholder from "/default-placeholder.jpg"; // ✅ always available
+const placeholder = "/default-placeholder.jpg";
+
 
 interface Package {
   id: string;

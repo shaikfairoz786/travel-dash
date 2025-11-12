@@ -11,7 +11,8 @@ import SearchBar from "../components/SearchBar";
 import WhyChooseUs from "../components/WhyChooseUs";
 import WhatOurTravelersSay from "../components/WhatOurTravelersSay";
 import { API_BASE_URL } from "../config/api";
-import placeholder from "/default-placeholder.jpg"; // ✅ Local fallback image
+const placeholder = "/default-placeholder.jpg";
+
 
 interface Package {
   id: string;
