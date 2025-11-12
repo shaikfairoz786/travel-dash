@@ -11,6 +11,7 @@ import SearchBar from "../components/SearchBar";
 import WhyChooseUs from "../components/WhyChooseUs";
 import WhatOurTravelersSay from "../components/WhatOurTravelersSay";
 import { API_BASE_URL } from "../config/api";
+import placeholder from "/default-placeholder.jpg"; // ✅ Local fallback image
 
 interface Package {
   id: string;
@@ -31,13 +32,18 @@ const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const getImageUrl = (url?: string) =>
-    url
-      ? url.startsWith("http")
-        ? url
-        : `${API_BASE_URL}${url}`
-      : "/default-placeholder.jpg";
+  // ✅ Safe image URL generator
+  const getImageUrl = (url?: string): string => {
+    if (!url) return placeholder;
+    if (url.startsWith("http")) return url;
 
+    const cleanBase = API_BASE_URL.replace(/\/$/, "");
+    const cleanUrl = url.replace(/^\/+/, "");
+
+    return `${cleanBase}/${cleanUrl}`;
+  };
+
+  // ✅ Fetch travel packages
   useEffect(() => {
     const fetchPackages = async () => {
       try {
@@ -52,7 +58,6 @@ const HomePage: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchPackages();
   }, []);
 
@@ -80,10 +85,7 @@ const HomePage: React.FC = () => {
           <p className="text-secondary-600 mb-6">
             We're working to fix this. Please try again later.
           </p>
-          <button
-            className="btn-primary"
-            onClick={() => window.location.reload()}
-          >
+          <button className="btn-primary" onClick={() => window.location.reload()}>
             Try Again
           </button>
         </div>
@@ -93,7 +95,7 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
+      {/* 🏞️ Hero Section */}
       <section className="relative bg-gray-50 overflow-hidden">
         <div className="relative container mx-auto px-4 py-20 lg:py-32">
           <div className="text-center max-w-4xl mx-auto animate-fade-in">
@@ -131,7 +133,7 @@ const HomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Floating Elements */}
+        {/* Floating Icons */}
         <div className="absolute top-20 left-10 animate-float">
           <GlobeAltIcon className="h-12 w-12 text-primary-300" />
         </div>
@@ -143,7 +145,7 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* 🛡️ Features Section */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -169,7 +171,7 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Packages Section */}
+      {/* 🌍 Packages Section */}
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16 animate-fade-in">
@@ -182,14 +184,9 @@ const HomePage: React.FC = () => {
 
           {packages.length === 0 ? (
             <div className="text-center py-16">
-              <div className="text-6xl mb-4">🏖️</div>
               <h3 className="text-2xl font-bold text-secondary-900 mb-4">
                 No packages found
               </h3>
-              <p className="text-secondary-600 mb-6">
-                Try adjusting your search criteria or check back later for new
-                destinations.
-              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -203,10 +200,13 @@ const HomePage: React.FC = () => {
                     <img
                       src={getImageUrl(pkg.images?.main)}
                       alt={pkg.title}
-                      onError={(e) =>
-                        ((e.target as HTMLImageElement).src =
-                          "/default-placeholder.jpg")
-                      }
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        if (!target.dataset.fallback) {
+                          target.src = placeholder;
+                          target.dataset.fallback = "true";
+                        }
+                      }}
                       className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                     <div className="absolute top-4 right-4 bg-gradient-primary text-white px-3 py-1 rounded-full text-sm font-semibold shadow-soft">
@@ -269,10 +269,7 @@ export default HomePage;
 
 /* ===== Helper Components ===== */
 
-const StatCard: React.FC<{ number: string; label: string }> = ({
-  number,
-  label,
-}) => (
+const StatCard: React.FC<{ number: string; label: string }> = ({ number, label }) => (
   <div className="text-center">
     <div className="text-3xl font-bold text-primary-600 mb-2">{number}</div>
     <div className="text-secondary-600 font-medium">{label}</div>
