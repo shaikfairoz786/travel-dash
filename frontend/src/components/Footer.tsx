@@ -17,7 +17,7 @@ const Footer: React.FC = () => {
             {/* Company Info */}
             <div className="animate-slide-in-left">
               <div className="flex items-center mb-6">
-                <img src="/WhatsApp Image 2025-11-08 at 20.50.30_f312a8331.jpg" alt="Travores Logo" className="h-10 w-10 rounded-full object-cover mr-3" />
+                <img src="https://iili.io/KpvYQnI.md.jpg" alt="Travores Logo" className="h-10 w-10 rounded-full object-cover mr-3" />
                 <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                   Travores
                 </span>
