@@ -1,46 +1,54 @@
-const express = require('express');
-const path = require('path');
-const fs = require('fs');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const routes = require('./src/routes');
-const { errorHandler, notFoundHandler } = require('./src/middleware/errorHandler');
+const express = require("express");
+const path = require("path");
+const fs = require("fs");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const routes = require("./src/routes");
+const {
+  errorHandler,
+  notFoundHandler,
+} = require("./src/middleware/errorHandler");
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Serve static files from the React app build directory
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
 app.use(cors());
 app.use(express.json());
 
-// ✅ Serve uploaded images (works both locally and on Railway)
-const uploadDir = path.join(__dirname, 'public/uploads');
-const altUploadDir = path.join(__dirname, 'src/public/uploads');
+// ✅ Determine correct uploads directory
+const localUploadDir = path.join(__dirname, "public/uploads");
+const tmpUploadDir = "/tmp/uploads";
 
-// Check which path actually exists
-const finalUploadDir = fs.existsSync(uploadDir) ? uploadDir : altUploadDir;
+// Railway/Vercel use /tmp for uploads (ephemeral)
+let finalUploadDir = fs.existsSync(tmpUploadDir)
+  ? tmpUploadDir
+  : localUploadDir;
 
-// Log which path is being used for clarity
+// Ensure folder exists (for local runs)
+if (!fs.existsSync(finalUploadDir)) {
+  fs.mkdirSync(finalUploadDir, { recursive: true });
+}
+
 console.log(`🖼️ Serving uploads from: ${finalUploadDir}`);
 
-app.use('/uploads', express.static(finalUploadDir));
+// ✅ Serve uploaded images
+app.use("/uploads", express.static(finalUploadDir));
+
+// ✅ Serve React build (after uploads)
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
 // ✅ API routes
-app.use('/api', routes);
+app.use("/api", routes);
 
-// ✅ Catch all handler: send React index.html for client-side routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+// ✅ Client-side routing fallback
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
 });
 
-// ✅ 404 handler
+// ✅ Error handlers
 app.use(notFoundHandler);
-
-// ✅ Global error handler (must be last)
 app.use(errorHandler);
 
 app.listen(port, () => {
