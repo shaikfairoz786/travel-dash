@@ -47,7 +47,6 @@ const bookingSchema = Joi.object({
   packageId: Joi.string().uuid().required(),
   quantity: Joi.number().integer().min(1).default(1),
   travelStart: Joi.date().optional(),
-  travelEnd: Joi.date().optional(),
   notes: Joi.string().max(500).optional(),
 });
 

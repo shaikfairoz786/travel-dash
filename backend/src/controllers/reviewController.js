@@ -35,12 +35,12 @@ const createReview = async (req, res, next) => {
       return res.status(409).json({ error: 'You have already reviewed this package' });
     }
 
-    // Check if user has an approved or completed booking for this package
+    // Check if user has an approved booking for this package
     const eligibleBooking = await prisma.booking.findFirst({
       where: {
         customerId: req.user.id,
         packageId,
-        status: { in: ['approved', 'completed'] },
+        status: 'approved',
       },
     });
 

@@ -10,7 +10,7 @@ const createBooking = async (req, res, next) => {
       return res.status(400).json({ error: error.details[0].message });
     }
 
-    const { packageId, quantity, travelStart, travelEnd, notes } = value;
+    const { packageId, quantity, travelStart, notes } = value;
 
     // Get package details to calculate total price
     const package = await prisma.package.findUnique({
@@ -31,7 +31,6 @@ const createBooking = async (req, res, next) => {
         quantity,
         totalPrice,
         travelStart: travelStart ? new Date(travelStart) : null,
-        travelEnd: travelEnd ? new Date(travelEnd) : null,
         notes,
       },
       include: {
@@ -260,15 +259,12 @@ const checkReviewEligibility = async (req, res, next) => {
   const { packageId } = req.params;
 
   try {
-    // Check if user has an approved or completed booking for this package where travel has ended
+    // Check if user has an approved booking for this package
     const booking = await prisma.booking.findFirst({
       where: {
         customerId: req.user.id,
         packageId,
-        status: { in: ['approved', 'completed'] },
-        travelEnd: {
-          lt: new Date(), // Travel end date is in the past
-        },
+        status: 'approved',
       },
     });
 

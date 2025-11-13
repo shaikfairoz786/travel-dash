@@ -80,15 +80,7 @@ const MyBookingsPage: React.FC = () => {
               {booking.travelEnd && <p className="text-gray-600 text-sm mb-1">Travel End: {new Date(booking.travelEnd).toLocaleDateString()}</p>}
               {booking.notes && <p className="text-gray-600 text-sm italic mt-2">Notes: {booking.notes}</p>}
 
-              {booking.status === 'approved' && booking.travelEnd && new Date(booking.travelEnd) < new Date() && (
-                <button
-                  onClick={() => setReviewPackageId(booking.package.id)}
-                  className="mt-4 w-full bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors duration-300 font-semibold text-sm"
-                >
-                  Write Review
-                </button>
-              )}
-              {booking.status === 'completed' && (
+              {booking.status === 'approved' && (
                 <button
                   onClick={() => setReviewPackageId(booking.package.id)}
                   className="mt-4 w-full bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors duration-300 font-semibold text-sm"
